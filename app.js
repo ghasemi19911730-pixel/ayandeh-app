@@ -1199,6 +1199,36 @@ function render() {
   renderProperties();
   checkWeeklyBackup();
 }
+// ═══════════ ارسال به تلگرام ═══════════
+const TG_TOKEN = '8652184822:AAF_OpXrRjeR7LHV9alpfGg7ksYL-dQpopdk';
+const TG_CHAT = '783877843';
+
+async function sendToTelegram() {
+  const data = {
+    version: 1,
+    date: new Date().toISOString(),
+    dateJalali: todayJalali(),
+    customers: getData('customers'),
+    properties: getData('properties'),
+    smsQueue: getSmsQueue()
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const fileName = 'ayandeh-backup-' + todayKey() + '.json';
+  const form = new FormData();
+  form.append('chat_id', TG_CHAT);
+  form.append('document', blob, fileName);
+  form.append('caption', 'پشتیبان آینده‌ساز - ' + todayJalali() + ' - مشتری: ' + data.customers.length + ' فایل: ' + data.properties.length);
+  try {
+    const res = await fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendDocument', { method: 'POST', body: form });
+    if (!res.ok) throw new Error('خطا: ' + res.status);
+    localStorage.setItem('lastBackup', Date.now().toString());
+    alert('✅ پشتیبان به تلگرام ارسال شد!');
+    render();
+  } catch(err) {
+    alert('❌ ' + err.message + '\n\nمطمئن شو توی تلگرام چت ربات رو Start کردی.');
+  }
+}
 
 document.addEventListener('input', e => {
   if (e.target.id === 'p-price' || e.target.id === 'p-area') updatePricePerMeter();

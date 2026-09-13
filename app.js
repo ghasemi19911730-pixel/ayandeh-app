@@ -1200,7 +1200,7 @@ function render() {
   checkWeeklyBackup();
 }
 // ═══════════ ارسال به تلگرام ═══════════
-const TG_TOKEN = '8652184822:AAF_OpXrRjeR7LHV9alpfGg7ksYL-dQpopdk';
+const TG_TOKEN = '8652184822:AAGScp19P9v5s7nTyNW1U-eZbTdf51RD68c';
 const TG_CHAT = '783877843';
 
 async function sendToTelegram() {

@@ -1535,3 +1535,9 @@ document.addEventListener('input', e => {
 });
 
 render();
+setInterval(function() {
+  const el = document.getElementById('p-pishforush-fields');
+  if (el && typeof state !== 'undefined' && state.property) {
+    el.style.display = (state.property.deal === 'پیش‌فروش') ? 'block' : 'none';
+  }
+}, 300);

@@ -1,10 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>آینده‌ساز</title>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=10">
+</head>
+<body>
+
+<div class="header"><h1>آینده‌ساز</h1></div>
+
+<div id="tab-home" class="tab active">
+  <div class="container">
+    <div class="greeting">سلام مشاور 👋</div>
+    <div class="subtitle">امروز فرصت‌های خوبی در انتظارته</div>
+    <div class="hero">
+      <div class="circle"><span>۷۸</span></div>
+      <div class="hero-text"><h2>هدف این ماه: ۱۰ قرارداد</h2><p>قراردادهای شما: ۳</p></div>
+    </div>
+    <div class="stats">
+      <div class="stat" onclick="switchTab('customers', document.querySelectorAll('.nav button')[1])"><div class="stat-icon" style="background:rgba(108,92,231,.1);color:#6C5CE7">👥</div><div class="stat-value" id="stat-customers">0</div><div class="stat-label">مشتریان</div></div>
+      <div class="stat" onclick="switchTab('properties', document.querySelectorAll('.nav button')[2])"><div class="stat-icon" style="background:rgba(0,184,148,.1);color:#00A37D">🏠</div><div class="stat-value" id="stat-properties">0</div><div class="stat-label">فایل‌ها</div></div>
+      <div class="stat" onclick="showFollowups()"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:#D97706">⏰</div><div class="stat-value" id="stat-followups">۰</div><div class="stat-label">پیگیری امروز</div></div>
+      <div class="stat" onclick="showSmsQueue()"><div class="stat-icon" style="background:rgba(59,130,246,.1);color:#2563EB">💬</div><div class="stat-value" id="stat-sms">۰</div><div class="stat-label">پیامک آماده</div></div>
+    </div>
+    <div class="suggest">
+      <div class="suggest-title"><span>💡</span> پیشنهاد هوشمند</div>
+      <p id="suggest-text">با ثبت مشتری و فایل، پیشنهادهای هوشمند اینجا نمایش داده می‌شود.</p>
+    </div>
+    <div id="backup-info" class="backup-info" style="display:none"></div>
+  </div>
+</div>
+
+<div id="tab-customers" class="tab">
+  <div class="container">
+    <div class="search-box"><span>🔍</span><input id="search-customers" placeholder="جستجو: نام، تلفن، آدرس، کد..." oninput="renderCustomers()"></div>
+    <button class="btn-blue" onclick="openCustFilter()" style="margin-bottom:14px">🎯 فیلتر پیشرفته</button>
+    <div class="filter-row" id="cust-filter">
+      <button class="filter-chip active" onclick="setCustFilter('all', this)">همه</button>
+      <button class="filter-chip" onclick="setCustFilter('خریدار', this)">🛒 خریدار</button>
+      <button class="filter-chip" onclick="setCustFilter('مستأجر', this)">🔑 مستأجر</button>
+      <button class="filter-chip" onclick="setCustFilter('معاوضه', this)">🔄 معاوضه</button>
+    </div>
+    <div id="customers-list"></div>
+  </div>
+  <button class="fab" onclick="openCustomerModal()">＋ مشتری جدید</button>
+</div>
+
+<div id="tab-properties" class="tab">
+  <div class="container">
+    <div class="search-box"><span>🔍</span><input id="search-properties" placeholder="جستجو: عنوان، آدرس، کد، مالک..." oninput="renderProperties()"></div>
+    <button class="btn-blue" onclick="openPropFilter()" style="margin-bottom:14px">🎯 فیلتر پیشرفته</button>
+    <div class="filter-row" id="prop-filter">
+      <button class="filter-chip active" onclick="setPropFilter('all', this)">همه</button>
+      <button class="filter-chip" onclick="setPropFilter('فروشنده', this)">💰 فروشنده</button>
+      <button class="filter-chip" onclick="setPropFilter('موجر', this)">🏠 موجر</button>
+      <button class="filter-chip" onclick="setPropFilter('معاوضه', this)">🔄 معاوضه</button>
+    </div>
+    <div id="properties-list"></div>
+  </div>
+  <button class="fab" onclick="openPropertyModal()">＋ فایل جدید</button>
+</div>
+
+<div id="tab-ai" class="tab">
+  <div class="container">
+    <div class="ai-hero"><div class="robot">🤖</div><h2>دستیار هوشمند</h2><p>اسکن، تطبیق، پیامک، پشتیبان</p></div>
+    <div class="gemini-info">✨ اسکن با Gemini AI فعال است<br>اسکرین‌شات یا عکس آگهی رو بفرست، خودش همه‌چیز رو می‌فهمه</div>
+    <div class="feature" onclick="openScanFor('property')"><div class="feature-icon">📷</div><div><div class="feature-title">اسکن هوشمند</div><div class="feature-sub">دقت بالای ۹۵٪</div></div></div>
+    <div class="feature" onclick="showSmsQueue()"><div class="feature-icon">💬</div><div><div class="feature-title">صف پیامک‌ها</div><div class="feature-sub">پیامک‌های آماده تأیید</div></div></div>
+    <div class="feature" onclick="showFollowups()"><div class="feature-icon">⏰</div><div><div class="feature-title">پیگیری‌ها</div><div class="feature-sub">امروز + سررسید ماهانه</div></div></div>
+    <div class="feature" onclick="backupNow()"><div class="feature-icon">💾</div><div><div class="feature-title">پشتیبان‌گیری</div><div class="feature-sub">ذخیره فایل پشتیبان</div></div></div>
+    <div class="feature" onclick="sendToTelegram()"><div class="feature-icon">📤</div><div><div class="feature-title">ارسال به تلگرام</div><div class="feature-sub">پشتیبان امن</div></div></div>
+    <div class="feature" onclick="restoreBackup()"><div class="feature-icon">📥</div><div><div class="feature-title">بازیابی</div><div class="feature-sub">از فایل پشتیبان</div></div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="switchTab('home', this)"><span class="icon">🏠</span>خانه</button>
+  <button onclick="switchTab('customers', this)"><span class="icon">👥</span>مشتریان</button>
+  <button onclick="switchTab('properties', this)"><span class="icon">🏘️</span>فایل‌ها</button>
+  <button onclick="switchTab('ai', this)"><span class="icon">🤖</span>دستیار</button>
+</div>
+
 <!-- مودال مشتری -->
 <div id="modal-customer" class="modal" onclick="if(event.target===this) closeModal('modal-customer')">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title" id="cust-modal-title">مشتری جدید</div><button class="modal-close" onclick="closeModal('modal-customer')">✕</button></div>
     <input type="hidden" id="c-id">
     <button class="btn-ocr" onclick="openScanFor('customer')">🤖 اسکن با Gemini AI</button>
-
     <div class="hier-step role-step">
       <div class="hier-title"><span class="hier-num role">۱</span> شما کی هستید؟</div>
       <div class="chips" id="c-role-chips">
@@ -13,12 +97,10 @@
         <button type="button" class="chip role" data-v="معاوضه" onclick="pickRole(this,'customer')">🔄 معاوضه</button>
       </div>
     </div>
-
     <div class="hier-step deal-step" id="c-deal-step" style="display:none">
       <div class="hier-title"><span class="hier-num deal">۲</span> نوع معامله؟</div>
       <div class="chips" id="c-deal-chips"></div>
     </div>
-
     <div class="hier-step cat-step" id="c-cat-step" style="display:none">
       <div class="hier-title"><span class="hier-num cat">۳</span> دسته ملک؟</div>
       <div class="chips" id="c-cat-chips">
@@ -30,12 +112,10 @@
         <button type="button" class="chip" data-v="باغ و ویلا" onclick="pickCat(this,'customer')">🌳 باغ و ویلا</button>
       </div>
     </div>
-
     <div class="hier-step type-step" id="c-type-step" style="display:none">
       <div class="hier-title"><span class="hier-num type">۴</span> نوع ملک؟</div>
       <div class="chips" id="c-type-chips"></div>
     </div>
-
     <div id="c-rest" style="display:none">
       <div class="section-title">اطلاعات پایه</div>
       <div class="field"><label class="field-label">نام *</label><input id="c-name" placeholder="مثلاً: احمدی"></div>
@@ -100,7 +180,6 @@
     <div class="modal-header"><div class="modal-title" id="prop-modal-title">فایل جدید</div><button class="modal-close" onclick="closeModal('modal-property')">✕</button></div>
     <input type="hidden" id="p-id">
     <button class="btn-ocr" onclick="openScanFor('property')">🤖 اسکن با Gemini AI</button>
-
     <div class="hier-step role-step">
       <div class="hier-title"><span class="hier-num role">۱</span> شما کی هستید؟</div>
       <div class="chips" id="p-role-chips">
@@ -109,12 +188,10 @@
         <button type="button" class="chip role" data-v="معاوضه" onclick="pickRole(this,'property')">🔄 معاوضه</button>
       </div>
     </div>
-
     <div class="hier-step deal-step" id="p-deal-step" style="display:none">
       <div class="hier-title"><span class="hier-num deal">۲</span> نوع معامله؟</div>
       <div class="chips" id="p-deal-chips"></div>
     </div>
-
     <div class="hier-step cat-step" id="p-cat-step" style="display:none">
       <div class="hier-title"><span class="hier-num cat">۳</span> دسته ملک؟</div>
       <div class="chips" id="p-cat-chips">
@@ -126,12 +203,10 @@
         <button type="button" class="chip" data-v="باغ و ویلا" onclick="pickCat(this,'property')">🌳 باغ و ویلا</button>
       </div>
     </div>
-
     <div class="hier-step type-step" id="p-type-step" style="display:none">
       <div class="hier-title"><span class="hier-num type">۴</span> نوع ملک؟</div>
       <div class="chips" id="p-type-chips"></div>
     </div>
-
     <div id="p-rest" style="display:none">
       <div class="section-title">اطلاعات پایه</div>
       <div class="field"><label class="field-label">عنوان فایل *</label><input id="p-title"></div>
@@ -257,329 +332,7 @@
   </div>
 </div>
 
-<!-- مودال فیلتر پیشرفته -->
-<div id="modal-filter" class="modal" onclick="if(event.target===this) closeModal('modal-filter')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title" id="filter-title">🎯 فیلتر پیشرفته</div><button class="modal-close" onclick="closeModal('modal-filter')">✕</button></div>
-    <div id="filter-body"></div>
-  </div>
-</div>
-
-<!-- مودال اسکن -->
-<div id="modal-scan" class="modal" onclick="if(event.target===this && !ocrRunning) closeModal('modal-scan')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">🤖 اسکن با Gemini AI</div><button class="modal-close" onclick="if(!ocrRunning) closeModal('modal-scan')">✕</button></div>
-    <input type="file" id="ocr-file-camera" accept="image/*" capture="environment" style="display:none" onchange="handleImageSelect(event)">
-    <input type="file" id="ocr-file-gallery" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
-    <div class="btn-row">
-      <button type="button" style="background:linear-gradient(135deg,#00B894,#00A37D);color:#fff" onclick="document.getElementById('ocr-file-camera').click()">📸 دوربین</button>
-      <button type="button" style="background:linear-gradient(135deg,#6C5CE7,#5849D6);color:#fff" onclick="document.getElementById('ocr-file-gallery').click()">🖼 گالری</button>
-    </div>
-    <img id="ocr-preview" class="ocr-preview" style="display:none;margin-top:14px">
-    <div id="ocr-progress-wrap" class="ocr-progress" style="display:none">
-      <div style="font-size:15px;font-weight:700">✨ در حال تحلیل...</div>
-      <div class="ocr-progress-bar"><div class="ocr-progress-fill" id="ocr-progress-fill"></div></div>
-      <div class="ocr-status" id="ocr-status">آماده‌سازی...</div>
-    </div>
-    <div id="ocr-detect-wrap" style="display:none">
-      <div class="section-title">🎯 اطلاعات تشخیص داده شده</div>
-      <div style="background:rgba(0,184,148,.08);border-radius:14px;padding:16px;margin-bottom:16px;font-size:14px;line-height:2;color:#065F46" id="ocr-detect-info"></div>
-      <div style="font-size:13px;color:#6B7280;text-align:center;margin-bottom:14px;font-weight:600">کجا ذخیره بشه؟</div>
-      <div class="btn-row">
-        <button type="button" style="background:rgba(0,184,148,.1);color:#00A37D" onclick="applyOcrResult('property')">🏠 مالک</button>
-        <button type="button" style="background:rgba(108,92,231,.1);color:#6C5CE7" onclick="applyOcrResult('customer')">👤 خواهان</button>
-      </div>
-    </div>
-    <div id="ocr-result-wrap" style="display:none;margin-top:16px">
-      <div class="section-title">📝 متن استخراج شده</div>
-      <div class="ocr-text-box" id="ocr-text"></div>
-    </div>
-    <div id="ocr-error-wrap" style="display:none">
-      <div class="empty"><div class="empty-icon">❌</div><div>خطا</div><div style="font-size:13px;margin-top:10px" id="ocr-error-text"></div></div>
-      <button class="btn-cancel" onclick="closeModal('modal-scan')">بستن</button>
-    </div>
-  </div>
-</div>
-
-<!-- مودال پیامک -->
-<div id="modal-sms" class="modal" onclick="if(event.target===this) closeModal('modal-sms')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">💬 ارسال پیامک</div><button class="modal-close" onclick="closeModal('modal-sms')">✕</button></div>
-    <div id="sms-body"></div>
-  </div>
-</div>
-
-<!-- مودال دیوار -->
-<div id="modal-divar" class="modal" onclick="if(event.target===this) closeModal('modal-divar')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">🏠 آگهی دیوار</div><button class="modal-close" onclick="closeModal('modal-divar')">✕</button></div>
-    <div id="divar-body"></div>
-  </div>
-</div>
-
-<script src="app.js?v=10"></script>
-</body>
-</html>
-<!-- مودال مشتری -->
-<div id="modal-customer" class="modal" onclick="if(event.target===this) closeModal('modal-customer')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title" id="cust-modal-title">مشتری جدید</div><button class="modal-close" onclick="closeModal('modal-customer')">✕</button></div>
-    <input type="hidden" id="c-id">
-    <button class="btn-ocr" onclick="openScanFor('customer')">🤖 اسکن با Gemini AI</button>
-
-    <div class="hier-step role-step">
-      <div class="hier-title"><span class="hier-num role">۱</span> شما کی هستید؟</div>
-      <div class="chips" id="c-role-chips">
-        <button type="button" class="chip role" data-v="خریدار" onclick="pickRole(this,'customer')">🛒 خریدار</button>
-        <button type="button" class="chip role" data-v="مستأجر" onclick="pickRole(this,'customer')">🔑 مستأجر</button>
-        <button type="button" class="chip role" data-v="معاوضه" onclick="pickRole(this,'customer')">🔄 معاوضه</button>
-      </div>
-    </div>
-
-    <div class="hier-step deal-step" id="c-deal-step" style="display:none">
-      <div class="hier-title"><span class="hier-num deal">۲</span> نوع معامله؟</div>
-      <div class="chips" id="c-deal-chips"></div>
-    </div>
-
-    <div class="hier-step cat-step" id="c-cat-step" style="display:none">
-      <div class="hier-title"><span class="hier-num cat">۳</span> دسته ملک؟</div>
-      <div class="chips" id="c-cat-chips">
-        <button type="button" class="chip" data-v="مسکونی" onclick="pickCat(this,'customer')">🏠 مسکونی</button>
-        <button type="button" class="chip comm" data-v="تجاری" onclick="pickCat(this,'customer')">🏢 تجاری</button>
-        <button type="button" class="chip office" data-v="اداری" onclick="pickCat(this,'customer')">💼 اداری</button>
-        <button type="button" class="chip" data-v="صنعتی" onclick="pickCat(this,'customer')">🏭 صنعتی</button>
-        <button type="button" class="chip" data-v="زمین" onclick="pickCat(this,'customer')">🌍 زمین</button>
-        <button type="button" class="chip" data-v="باغ و ویلا" onclick="pickCat(this,'customer')">🌳 باغ و ویلا</button>
-      </div>
-    </div>
-
-    <div class="hier-step type-step" id="c-type-step" style="display:none">
-      <div class="hier-title"><span class="hier-num type">۴</span> نوع ملک؟</div>
-      <div class="chips" id="c-type-chips"></div>
-    </div>
-
-    <div id="c-rest" style="display:none">
-      <div class="section-title">اطلاعات پایه</div>
-      <div class="field"><label class="field-label">نام *</label><input id="c-name" placeholder="مثلاً: احمدی"></div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">تماس ۱</label><input id="c-phone" type="tel" dir="ltr"></div>
-        <div class="field"><label class="field-label">تماس ۲</label><input id="c-phone2" type="tel" dir="ltr"></div>
-      </div>
-      <div class="section-title">مشخصات مورد نظر</div>
-      <div class="field"><label class="field-label">محدوده / آدرس</label><input id="c-location"></div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">متراژ از</label><input id="c-area-from" type="number"></div>
-        <div class="field"><label class="field-label">متراژ تا</label><input id="c-area-to" type="number"></div>
-      </div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">خواب</label><input id="c-rooms" type="number"></div>
-        <div class="field"><label class="field-label">طبقه</label><input id="c-floor"></div>
-      </div>
-      <div class="section-title">بودجه</div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">بودجه از</label><input id="c-budget-from" type="number"></div>
-        <div class="field"><label class="field-label">بودجه تا</label><input id="c-budget-to" type="number"></div>
-      </div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">ودیعه</label><input id="c-deposit" type="number"></div>
-        <div class="field"><label class="field-label">اجاره</label><input id="c-rent" type="number"></div>
-      </div>
-      <div class="section-title">امکانات مورد نیاز</div>
-      <div class="chips" id="c-features">
-        <button type="button" class="chip" data-v="پارکینگ" onclick="toggleChip(this)">پارکینگ</button>
-        <button type="button" class="chip" data-v="آسانسور" onclick="toggleChip(this)">آسانسور</button>
-        <button type="button" class="chip" data-v="انباری" onclick="toggleChip(this)">انباری</button>
-        <button type="button" class="chip" data-v="بالکن" onclick="toggleChip(this)">بالکن</button>
-        <button type="button" class="chip" data-v="ویترین" onclick="toggleChip(this)">ویترین</button>
-        <button type="button" class="chip" data-v="برق سه فاز" onclick="toggleChip(this)">برق سه فاز</button>
-        <button type="button" class="chip" data-v="استخر" onclick="toggleChip(this)">استخر</button>
-        <button type="button" class="chip" data-v="حیاط" onclick="toggleChip(this)">حیاط</button>
-      </div>
-      <div class="section-title">پیگیری</div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">تاریخ ثبت</label><input id="c-date"></div>
-        <div class="field"><label class="field-label">پیگیری بعدی</label><input id="c-next-date"></div>
-      </div>
-      <div class="field"><label class="field-label">وضعیت</label>
-        <select id="c-status">
-          <option value="new">🆕 جدید</option>
-          <option value="follow">🔄 در پیگیری</option>
-          <option value="done">💰 معامله شد</option>
-          <option value="lost">❌ منصرف</option>
-        </select>
-      </div>
-      <div class="field"><label class="field-label">یادداشت</label><textarea id="c-note" rows="3"></textarea></div>
-      <button class="btn-primary" onclick="saveCustomer()">ذخیره</button>
-    </div>
-    <div id="c-hint" class="hier-hint">👆 اول نقش خودت رو انتخاب کن</div>
-    <button class="btn-cancel" onclick="closeModal('modal-customer')">انصراف</button>
-  </div>
-</div>
-
-<!-- مودال فایل -->
-<div id="modal-property" class="modal" onclick="if(event.target===this) closeModal('modal-property')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title" id="prop-modal-title">فایل جدید</div><button class="modal-close" onclick="closeModal('modal-property')">✕</button></div>
-    <input type="hidden" id="p-id">
-    <button class="btn-ocr" onclick="openScanFor('property')">🤖 اسکن با Gemini AI</button>
-
-    <div class="hier-step role-step">
-      <div class="hier-title"><span class="hier-num role">۱</span> شما کی هستید؟</div>
-      <div class="chips" id="p-role-chips">
-        <button type="button" class="chip role" data-v="فروشنده" onclick="pickRole(this,'property')">💰 فروشنده</button>
-        <button type="button" class="chip role" data-v="موجر" onclick="pickRole(this,'property')">🏠 موجر</button>
-        <button type="button" class="chip role" data-v="معاوضه" onclick="pickRole(this,'property')">🔄 معاوضه</button>
-      </div>
-    </div>
-
-    <div class="hier-step deal-step" id="p-deal-step" style="display:none">
-      <div class="hier-title"><span class="hier-num deal">۲</span> نوع معامله؟</div>
-      <div class="chips" id="p-deal-chips"></div>
-    </div>
-
-    <div class="hier-step cat-step" id="p-cat-step" style="display:none">
-      <div class="hier-title"><span class="hier-num cat">۳</span> دسته ملک؟</div>
-      <div class="chips" id="p-cat-chips">
-        <button type="button" class="chip" data-v="مسکونی" onclick="pickCat(this,'property')">🏠 مسکونی</button>
-        <button type="button" class="chip comm" data-v="تجاری" onclick="pickCat(this,'property')">🏢 تجاری</button>
-        <button type="button" class="chip office" data-v="اداری" onclick="pickCat(this,'property')">💼 اداری</button>
-        <button type="button" class="chip" data-v="صنعتی" onclick="pickCat(this,'property')">🏭 صنعتی</button>
-        <button type="button" class="chip" data-v="زمین" onclick="pickCat(this,'property')">🌍 زمین</button>
-        <button type="button" class="chip" data-v="باغ و ویلا" onclick="pickCat(this,'property')">🌳 باغ و ویلا</button>
-      </div>
-    </div>
-
-    <div class="hier-step type-step" id="p-type-step" style="display:none">
-      <div class="hier-title"><span class="hier-num type">۴</span> نوع ملک؟</div>
-      <div class="chips" id="p-type-chips"></div>
-    </div>
-
-    <div id="p-rest" style="display:none">
-      <div class="section-title">اطلاعات پایه</div>
-      <div class="field"><label class="field-label">عنوان فایل *</label><input id="p-title"></div>
-      <div class="field"><label class="field-label">کد فایل</label><input id="p-code" placeholder="A-001"></div>
-      <div class="section-title">موقعیت</div>
-      <div class="field"><label class="field-label">محدوده / محله</label><input id="p-location"></div>
-      <div class="field"><label class="field-label">آدرس دقیق (فقط خودت)</label><input id="p-address"></div>
-      <div class="section-title">مشخصات اصلی</div>
-      <div id="p-fields-dynamic"></div>
-      <div class="section-title">قیمت</div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">قیمت کل (تومان)</label><input id="p-price" type="number"></div>
-        <div class="field"><label class="field-label">قیمت هر متر</label><input id="p-price-per-meter" readonly></div>
-      </div>
-      <div class="row-3">
-        <div class="field"><label class="field-label">ودیعه</label><input id="p-deposit" type="number"></div>
-        <div class="field"><label class="field-label">اجاره</label><input id="p-rent" type="number"></div>
-        <div class="field"><label class="field-label">پول پیش</label><input id="p-prepayment" type="number"></div>
-      </div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">مبلغ وام</label><input id="p-loan" type="number"></div>
-        <div class="field"><label class="field-label">سرقفلی</label><input id="p-goodwill" type="number"></div>
-      </div>
-      <div class="section-title">امکانات</div>
-      <div class="chips" id="p-features">
-        <button type="button" class="chip" data-v="پارکینگ" onclick="toggleChip(this)">پارکینگ</button>
-        <button type="button" class="chip" data-v="آسانسور" onclick="toggleChip(this)">آسانسور</button>
-        <button type="button" class="chip" data-v="انباری" onclick="toggleChip(this)">انباری</button>
-        <button type="button" class="chip" data-v="بالکن" onclick="toggleChip(this)">بالکن</button>
-        <button type="button" class="chip" data-v="استخر" onclick="toggleChip(this)">استخر</button>
-        <button type="button" class="chip" data-v="سونا" onclick="toggleChip(this)">سونا</button>
-        <button type="button" class="chip" data-v="روف گاردن" onclick="toggleChip(this)">روف گاردن</button>
-        <button type="button" class="chip" data-v="لابی" onclick="toggleChip(this)">لابی</button>
-        <button type="button" class="chip" data-v="ویترین" onclick="toggleChip(this)">ویترین</button>
-        <button type="button" class="chip" data-v="کولر گازی" onclick="toggleChip(this)">کولر گازی</button>
-        <button type="button" class="chip" data-v="پکیج" onclick="toggleChip(this)">پکیج</button>
-        <button type="button" class="chip" data-v="دوربین" onclick="toggleChip(this)">دوربین</button>
-        <button type="button" class="chip" data-v="برق سه فاز" onclick="toggleChip(this)">برق سه فاز</button>
-      </div>
-      <div class="section-title">عکس‌ها (تا ۵)</div>
-      <div class="photo-grid" id="p-photos"></div>
-      <input type="file" id="p-photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(event,'property')">
-      <div class="section-title">مالک</div>
-      <div class="role-header">👤 مالک ملک</div>
-      <div class="field"><label class="field-label">نام مالک</label><input id="p-owner-name" placeholder="مثلاً: رضایی"></div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">شماره ۱</label><input id="p-owner-phone" type="tel" dir="ltr"></div>
-        <div class="field"><label class="field-label">شماره ۲</label><input id="p-owner-phone2" type="tel" dir="ltr"></div>
-      </div>
-      <div class="section-title">سند</div>
-      <div class="row-2">
-        <div class="field"><label class="field-label">نوع سند</label>
-          <select id="p-doc">
-            <option value="">انتخاب</option>
-            <option>تک‌برگ</option>
-            <option>منگوله‌دار</option>
-            <option>قولنامه‌ای</option>
-            <option>شش‌دانگ</option>
-            <option>سند تجاری</option>
-            <option>سرقفلی</option>
-            <option>اوقافی</option>
-            <option>در دست اقدام</option>
-          </select>
-        </div>
-        <div class="field"><label class="field-label">شماره سند</label><input id="p-doc-number"></div>
-      </div>
-      <div id="p-rent-dates" style="display:none">
-        <div class="section-title">تاریخ اجاره</div>
-        <div class="row-2">
-          <div class="field"><label class="field-label">شروع اجاره</label><input id="p-rent-start" placeholder="۱۴۰۵/۰۷/۰۱"></div>
-          <div class="field"><label class="field-label">پایان اجاره</label><input id="p-rent-end" placeholder="۱۴۰۶/۰۶/۳۰"></div>
-        </div>
-      </div>
-      <div class="section-title">وضعیت و تاریخ</div>
-      <div class="field"><label class="field-label">وضعیت فایل</label>
-        <select id="p-status">
-          <option value="active">🟢 فعال</option>
-          <option value="reserved">🟡 رزرو</option>
-          <option value="sold">💰 فروخته شده</option>
-          <option value="rented">🔑 اجاره داده شده</option>
-          <option value="swapped">🔄 معاوضه شده</option>
-          <option value="canceled">❌ منصرف</option>
-        </select>
-      </div>
-      <div class="field"><label class="field-label">تاریخ ثبت</label><input id="p-date"></div>
-      <div class="field"><label class="field-label">توضیحات</label><textarea id="p-note" rows="3"></textarea></div>
-      <button class="btn-primary" onclick="saveProperty()">ذخیره</button>
-    </div>
-    <div id="p-hint" class="hier-hint">👆 اول نقش خودت رو انتخاب کن</div>
-    <button class="btn-cancel" onclick="closeModal('modal-property')">انصراف</button>
-  </div>
-</div>
-
-<!-- مودال جزئیات -->
-<div id="modal-detail" class="modal" onclick="if(event.target===this) closeModal('modal-detail')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">جزئیات</div><button class="modal-close" onclick="closeModal('modal-detail')">✕</button></div>
-    <div id="detail-body"></div>
-  </div>
-</div>
-
-<!-- مودال تطبیق -->
-<div id="modal-matches" class="modal" onclick="if(event.target===this) closeModal('modal-matches')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">🎯 تطبیق‌ها</div><button class="modal-close" onclick="closeModal('modal-matches')">✕</button></div>
-    <div id="matches-body"></div>
-  </div>
-</div>
-
-<!-- مودال صف پیامک -->
-<div id="modal-sms-queue" class="modal" onclick="if(event.target===this) closeModal('modal-sms-queue')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">💬 پیامک‌های آماده</div><button class="modal-close" onclick="closeModal('modal-sms-queue')">✕</button></div>
-    <div id="sms-queue-body"></div>
-  </div>
-</div>
-
-<!-- مودال پیگیری -->
-<div id="modal-followups" class="modal" onclick="if(event.target===this) closeModal('modal-followups')">
-  <div class="modal-content">
-    <div class="modal-header"><div class="modal-title">⏰ پیگیری‌ها</div><button class="modal-close" onclick="closeModal('modal-followups')">✕</button></div>
-    <div id="followups-body"></div>
-  </div>
-</div>
-
-<!-- مودال فیلتر پیشرفته -->
+<!-- مودال فیلتر -->
 <div id="modal-filter" class="modal" onclick="if(event.target===this) closeModal('modal-filter')">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title" id="filter-title">🎯 فیلتر پیشرفته</div><button class="modal-close" onclick="closeModal('modal-filter')">✕</button></div>

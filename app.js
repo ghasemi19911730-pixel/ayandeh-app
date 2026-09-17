@@ -1488,6 +1488,7 @@ function openDivarModal(id) {
   if (!p) return;
   const lines = [];
   lines.push('🏠 ' + p.deal + ' ' + p.type);
+  if (p.code) lines.push('📋 کد ملک: ' + p.code);
   if (p.area) lines.push('📐 متراژ: ' + p.area + ' متر');
   if (p.landArea) lines.push('🌍 زمین: ' + p.landArea + ' متر');
   if (p.rooms) lines.push('🛏 خواب: ' + p.rooms);

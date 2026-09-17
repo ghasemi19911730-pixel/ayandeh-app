@@ -1170,6 +1170,17 @@ function openPropertyModal(editId) {
   currentLocation = null;
   $('p-location-status').textContent = 'لوکیشن ثبت نشده';
   $('prop-modal-title').textContent = 'فایل جدید';
+  if (!$('p-code').value) {
+  const _list = getData('properties');
+  let _max = 0;
+  _list.forEach(_p => {
+    if (_p.code && _p.code.startsWith('A-')) {
+      const _n = parseInt(_p.code.replace('A-', ''));
+      if (_n > _max) _max = _n;
+    }
+  });
+  $('p-code').value = 'A-' + String(_max + 1).padStart(3, '0');
+  }
 
   if (editId) {
     const p = getData('properties').find(x => x.id === editId);

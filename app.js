@@ -1533,3 +1533,44 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function dateNum(s) {
+  if (!s) return 0;
+  const c = String(s).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  const p = c.split(/[\/\-]/);
+  if (p.length < 3) return 0;
+  return parseInt(p[0]) * 10000 + parseInt(p[1]) * 100 + parseInt(p[2]);
+}
+
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayN = dateNum(todayJalali());
+  const due = customers.filter(c => c.nextDate && dateNum(c.nextDate) <= todayN && c.status !== 'done' && c.status !== 'lost');
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd);
+  let html = '';
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌ها (' + rented.length + ')</div>';
+    html += rented.map(p => {
+      const daysLeft = dateNum(p.rentEnd) - todayN;
+      const isUrgent = daysLeft <= 30 && daysLeft >= -10;
+      const color = isUrgent ? '#D97706' : '#6C5CE7';
+      const daysTxt = daysLeft < 0 ? 'گذشته' : (daysLeft === 0 ? 'امروز' : daysLeft + ' روز مونده');
+      return '<div class="card" style="border-right:4px solid ' + color + '">' +
+        '<div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + ' — ' + daysTxt + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+        '</div>';
+    }).join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (!html) {
+    html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  }
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+}

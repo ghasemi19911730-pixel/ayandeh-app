@@ -1440,3 +1440,75 @@ setInterval(function() {
 
 render();
 window.onerror = function(msg, url, line) { alert('خطا در خط ' + line + ': ' + msg); return false; };
+function jalaliDays(s) {
+  if (!s) return 0;
+  const clean = String(s).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  const parts = clean.split(/[\/\-]/);
+  if (parts.length < 3) return 0;
+  const jy = parseInt(parts[0]);
+  const jm = parseInt(parts[1]);
+  const jd = parseInt(parts[2]);
+  const epbase = jy - 474;
+  const epyear = 474 + (epbase % 2820);
+  return jd + (jm <= 7 ? (jm - 1) * 31 : ((jm - 1) * 30) + 6) + Math.floor(((epyear * 682) - 110) / 2816) + (epyear - 1) * 365 + Math.floor(epbase / 2820) * 1029983 + 1948320;
+}
+
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayDays = jalaliDays(todayJalali());
+  const due = customers.filter(c => c.nextDate && jalaliDays(c.nextDate) <= todayDays && c.status !== 'done' && c.status !== 'lost');
+  const upcoming = customers.filter(c => c.nextDate && jalaliDays(c.nextDate) > todayDays && c.status !== 'done' && c.status !== 'lost');
+  const monthlyCust = customers.filter(c => {
+    if (!c.date || c.status === 'done' || c.status === 'lost') return false;
+    const d = todayDays - jalaliDays(c.date);
+    return d >= 30 && d < 35;
+  });
+  const monthlyProp = properties.filter(p => {
+    if (!p.date || p.status !== 'active') return false;
+    const d = todayDays - jalaliDays(p.date);
+    return d >= 30 && d < 35;
+  });
+  const expiring = properties.filter(p => {
+    if (p.status !== 'rented' || !p.rentEnd) return false;
+    const d = jalaliDays(p.rentEnd) - todayDays;
+    return d >= -10 && d <= 30;
+  });
+  let html = '';
+  if (expiring.length) {
+    html += '<div class="section-title">🔑 اجاره‌های نزدیک به انقضا (' + expiring.length + ')</div>';
+    html += expiring.map(p => 
+      '<div class="card" style="border-right:4px solid #D97706">' +
+        '<div class="card-header"><div class="card-title">' + p.title + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 مالک: ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+      '</div>'
+    ).join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (monthlyCust.length || monthlyProp.length) {
+    html += '<div class="section-title">📅 پیگیری ماهانه (' + (monthlyCust.length + monthlyProp.length) + ')</div>';
+    html += monthlyCust.map(c => customerFollowRow(c, 'up')).join('');
+    html += monthlyProp.map(p => 
+      '<div class="card" style="border-right:4px solid #6C5CE7" onclick="closeModal(\'modal-followups\');showPropertyDetail(\'' + p.id + '\')">' +
+        '<div class="card-header"><div class="card-title">' + (p.role ? p.role + ' • ' : '') + p.title + '</div></div>' +
+        (p.location ? '<div class="card-sub">📍 ' + p.location + '</div>' : '') +
+        '<div class="card-sub" style="margin-top:6px;color:#6C5CE7;font-weight:700">📅 ثبت: ' + p.date + '</div>' +
+      '</div>'
+    ).join('');
+  }
+  if (upcoming.length) {
+    html += '<div class="section-title">🟡 در پیش (' + upcoming.length + ')</div>';
+    html += upcoming.map(c => customerFollowRow(c, 'up')).join('');
+  }
+  if (!html) {
+    html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  }
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+}

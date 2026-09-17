@@ -1512,3 +1512,24 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const today = todayJalali();
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd && p.rentEnd >= today);
+  const due = customers.filter(c => c.nextDate && c.nextDate <= today && c.status !== 'done' && c.status !== 'lost');
+  let html = '';
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌های فعال (' + rented.length + ')</div>';
+    html += rented.map(p => '<div class="card" style="border-right:4px solid #D97706"><div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div><div class="card-sub">📅 پایان: ' + p.rentEnd + '</div>' + (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') + (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') + '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button></div>').join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (!html) {
+    html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  }
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+}

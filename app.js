@@ -1439,3 +1439,4 @@ setInterval(function() {
 }, 300);
 
 render();
+window.onerror = function(msg, url, line) { alert('خطا در خط ' + line + ': ' + msg); return false; };

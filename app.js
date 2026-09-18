@@ -1892,3 +1892,47 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function openCalendar() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayD = jToDays(todayJalali());
+  const events = {};
+  properties.forEach(p => {
+    if (p.rentEnd && (p.status === 'rented')) {
+      const d = jToDays(p.rentEnd);
+      if (!events[d]) events[d] = [];
+      const codeStr = p.code ? ' (' + p.code + ')' : '';
+      events[d].push({ icon: '🔑', text: 'پایان اجاره: ' + p.title + codeStr, color: '#D97706' });
+    }
+  });
+  customers.forEach(c => {
+    if (c.nextDate) {
+      const d = jToDays(c.nextDate);
+      if (!events[d]) events[d] = [];
+      events[d].push({ icon: '🔴', text: 'پیگیری: ' + c.name, color: '#DC2626' });
+    }
+  });
+  let html = '<div class="section-title">📅 رویدادهای پیش‌رو</div>';
+  const sorted = Object.keys(events).map(Number).filter(d => d >= todayD - 5).sort((a,b) => a - b);
+  if (!sorted.length) {
+    html += '<div class="empty"><div class="empty-icon">📅</div>رویدادی در پیش نیست</div>';
+  } else {
+    sorted.slice(0, 30).forEach(d => {
+      const diff = d - todayD;
+      let dayTxt = '';
+      if (diff < 0) dayTxt = Math.abs(diff) + ' روز گذشته';
+      else if (diff === 0) dayTxt = 'امروز';
+      else if (diff === 1) dayTxt = 'فردا';
+      else dayTxt = diff + ' روز دیگه';
+      html += '<div style="background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04)">';
+      html += '<div style="font-weight:700;color:' + (diff <= 0 ? '#DC2626' : '#6C5CE7') + ';margin-bottom:8px">' + dayTxt + '</div>';
+      events[d].forEach(e => {
+        html += '<div style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:14px"><span>' + e.icon + '</span><span style="color:' + e.color + '">' + e.text + '</span></div>';
+      });
+      html += '</div>';
+    });
+  }
+  $('followups-body').innerHTML = html;
+  $('modal-followups').querySelector('.modal-title').textContent = '📅 تقویم رویدادها';
+  openModal('modal-followups');
+}

@@ -1622,3 +1622,57 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function jToDays(s) {
+  if (!s) return 0;
+  const c = String(s).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  const p = c.split(/[\/\-]/).map(x => parseInt(x));
+  if (p.length < 3) return 0;
+  let jy = p[0] + 1595;
+  let d = -355668 + 365 * jy + Math.floor(jy / 33) * 8 + Math.floor(((jy % 33) + 3) / 4) + p[2] + ((p[1] < 7) ? (p[1] - 1) * 31 : ((p[1] - 7) * 30) + 186);
+  let gy = 400 * Math.floor(d / 146097);
+  d %= 146097;
+  if (d > 36524) { gy += 100 * Math.floor(--d / 36524); d %= 36524; if (d >= 365) d++; }
+  gy += 4 * Math.floor(d / 1461);
+  d %= 1461;
+  if (d > 365) { gy += Math.floor((d - 1) / 365); d = (d - 1) % 365; }
+  let gd = d + 1;
+  const m = [31, ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let gm = 0;
+  while (gm < 12 && gd > m[gm]) { gd -= m[gm]; gm++; }
+  return Math.floor(Date.UTC(gy, gm, gd) / 86400000);
+}
+
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayD = jToDays(todayJalali());
+  const due = customers.filter(c => c.nextDate && jToDays(c.nextDate) <= todayD && c.status !== 'done' && c.status !== 'lost');
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd);
+  let html = '';
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌ها (' + rented.length + ')</div>';
+    html += rented.map(p => {
+      const left = jToDays(p.rentEnd) - todayD;
+      const urgent = left <= 30 && left >= -10;
+      const color = urgent ? '#D97706' : '#6C5CE7';
+      let txt = '';
+      if (left < 0) txt = Math.abs(left) + ' روز گذشته';
+      else if (left === 0) txt = 'امروز آخرین روز';
+      else txt = left + ' روز مونده';
+      return '<div class="card" style="border-right:4px solid ' + color + '">' +
+        '<div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + ' — ' + txt + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+        '</div>';
+    }).join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (!html) html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+    }

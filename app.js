@@ -1709,3 +1709,83 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function snoozeItem(type, id, days) {
+  const todayD = jToDays(todayJalali());
+  if (type === 'prop') {
+    const list = getData('properties');
+    const p = list.find(x => x.id === id);
+    if (p) { p.snoozeUntil = todayD + days; setData('properties', list); }
+  } else {
+    const list = getData('customers');
+    const c = list.find(x => x.id === id);
+    if (c) { c.snoozeUntil = todayD + days; setData('customers', list); }
+  }
+  showFollowups();
+}
+
+function doneItem(type, id) {
+  const todayD = jToDays(todayJalali());
+  if (type === 'prop') {
+    const list = getData('properties');
+    const p = list.find(x => x.id === id);
+    if (p) { p.snoozeUntil = 99999999; setData('properties', list); }
+  } else {
+    const list = getData('customers');
+    const c = list.find(x => x.id === id);
+    if (c) { c.snoozeUntil = 99999999; setData('customers', list); }
+  }
+  showFollowups();
+}
+
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayD = jToDays(todayJalali());
+  const visible = x => !x.snoozeUntil || x.snoozeUntil < todayD;
+
+  const due = customers.filter(c => c.nextDate && jToDays(c.nextDate) <= todayD && c.status !== 'done' && c.status !== 'lost' && visible(c));
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd && (jToDays(p.rentEnd) - todayD) <= 30 && visible(p));
+
+  let html = '';
+
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌های نزدیک به انقضا (' + rented.length + ')</div>';
+    html += rented.map(p => {
+      const left = jToDays(p.rentEnd) - todayD;
+      let txt = left < 0 ? Math.abs(left) + ' روز گذشته' : (left === 0 ? 'امروز آخرین روز' : left + ' روز مونده');
+      return '<div class="card" style="border-right:4px solid #D97706">' +
+        '<div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + ' — ' + txt + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+        '<div class="btn-row" style="margin-top:8px">' +
+          '<button class="btn-green" onclick="doneItem(\'prop\',\'' + p.id + '\')">✅ انجام شد</button>' +
+          '<button class="btn-blue" onclick="snoozeItem(\'prop\',\'' + p.id + '\',3)">📅 ۳ روز</button>' +
+        '</div>' +
+        '<button class="btn-blue" onclick="snoozeItem(\'prop\',\'' + p.id + '\',7)" style="margin-top:6px">📅 ۷ روز بعد</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c =>
+      '<div class="card" style="border-right:4px solid #DC2626">' +
+        '<div class="card-header"><div class="card-title">' + (c.role ? c.role + ' • ' : '') + c.name + '</div></div>' +
+        (c.location ? '<div class="card-sub">📍 ' + c.location + '</div>' : '') +
+        (c.phone ? '<div class="card-sub">📞 ' + phoneLink(c.phone) + '</div>' : '') +
+        '<div class="card-sub" style="color:#DC2626;font-weight:700">📅 ' + c.nextDate + '</div>' +
+        '<div class="btn-row" style="margin-top:8px">' +
+          '<button class="btn-green" onclick="doneItem(\'cust\',\'' + c.id + '\')">✅ انجام شد</button>' +
+          '<button class="btn-blue" onclick="snoozeItem(\'cust\',\'' + c.id + '\',3)">📅 ۳ روز</button>' +
+        '</div>' +
+        '<button class="btn-blue" onclick="snoozeItem(\'cust\',\'' + c.id + '\',7)" style="margin-top:6px">📅 ۷ روز بعد</button>' +
+        '</div>'
+    ).join('');
+  }
+
+  if (!html) html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+      }

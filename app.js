@@ -1574,3 +1574,51 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
 }
+function jDays(s) {
+  if (!s) return 0;
+  const c = String(s).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  const p = c.split(/[\/\-]/);
+  if (p.length < 3) return 0;
+  const jy = parseInt(p[0]), jm = parseInt(p[1]), jd = parseInt(p[2]);
+  let days = jd;
+  for (let i = 1; i < jm; i++) days += (i <= 6) ? 31 : 30;
+  days += jy * 365 + Math.floor(jy / 4);
+  return days;
+}
+
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayDays = jDays(todayJalali());
+  const due = customers.filter(c => c.nextDate && jDays(c.nextDate) <= todayDays && c.status !== 'done' && c.status !== 'lost');
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd);
+  let html = '';
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌ها (' + rented.length + ')</div>';
+    html += rented.map(p => {
+      const daysLeft = jDays(p.rentEnd) - todayDays;
+      const isUrgent = daysLeft <= 30 && daysLeft >= -10;
+      const color = isUrgent ? '#D97706' : '#6C5CE7';
+      let daysTxt = '';
+      if (daysLeft < 0) daysTxt = Math.abs(daysLeft) + ' روز گذشته';
+      else if (daysLeft === 0) daysTxt = 'امروز';
+      else daysTxt = daysLeft + ' روز مونده';
+      return '<div class="card" style="border-right:4px solid ' + color + '">' +
+        '<div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + ' — ' + daysTxt + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+        '</div>';
+    }).join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (!html) {
+    html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  }
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+}

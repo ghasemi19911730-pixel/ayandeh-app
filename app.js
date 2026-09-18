@@ -1676,3 +1676,36 @@ function showFollowups() {
   $('followups-body').innerHTML = html;
   openModal('modal-followups');
     }
+function showFollowups() {
+  const customers = getData('customers');
+  const properties = getData('properties');
+  const todayD = jToDays(todayJalali());
+  const due = customers.filter(c => c.nextDate && jToDays(c.nextDate) <= todayD && c.status !== 'done' && c.status !== 'lost');
+  const rented = properties.filter(p => p.status === 'rented' && p.rentEnd && (jToDays(p.rentEnd) - todayD) <= 30);
+  let html = '';
+  if (rented.length) {
+    html += '<div class="section-title">🔑 اجاره‌های نزدیک به انقضا (' + rented.length + ')</div>';
+    html += rented.map(p => {
+      const left = jToDays(p.rentEnd) - todayD;
+      const color = '#D97706';
+      let txt = '';
+      if (left < 0) txt = Math.abs(left) + ' روز گذشته';
+      else if (left === 0) txt = 'امروز آخرین روز';
+      else txt = left + ' روز مونده';
+      return '<div class="card" style="border-right:4px solid ' + color + '">' +
+        '<div class="card-header"><div class="card-title">' + (p.title || '') + '</div></div>' +
+        '<div class="card-sub">📅 پایان: ' + p.rentEnd + ' — ' + txt + '</div>' +
+        (p.ownerName ? '<div class="card-sub">👤 ' + p.ownerName + '</div>' : '') +
+        (p.ownerPhone ? '<div class="card-sub">📞 ' + phoneLink(p.ownerPhone) + '</div>' : '') +
+        '<button class="btn-orange" onclick="sendRentExpirySms(\'' + p.id + '\')" style="margin-top:8px">📤 پیامک به مالک</button>' +
+        '</div>';
+    }).join('');
+  }
+  if (due.length) {
+    html += '<div class="section-title">🔴 پیگیری سررسید (' + due.length + ')</div>';
+    html += due.map(c => customerFollowRow(c, 'due')).join('');
+  }
+  if (!html) html = '<div class="empty"><div class="empty-icon">🎉</div>پیگیری خاصی نداری</div>';
+  $('followups-body').innerHTML = html;
+  openModal('modal-followups');
+}

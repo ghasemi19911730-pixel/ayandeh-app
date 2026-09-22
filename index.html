@@ -403,74 +403,108 @@
 </div>
 <script src="app.js?v=99"></script>
 <script>
+  <script>
 (function(){
   const FA='۰۱۲۳۴۵۶۷۸۹';
   const toEn = s => String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d)).replace(/,/g,'').replace(/\u200c/g,' ');
   const W = {یک:1,دو:2,سه:3,چهار:4,پنج:5,شش:6,هفت:7,هشت:8,نه:9,ده:10};
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+
   function parse(text){
     const t = toEn(text), r = {};
     let m;
     r._rent = /اجاره|رهن|ودیعه|مستأجر|مستاجر/.test(t);
     r._exchange = /معاوضه|تبدیل/.test(t);
-    const map = [
-      ['مسکونی','آپارتمان', /آپارتمان|اپارتمان/],
-      ['مسکونی','ویلا',      /ویلا/],
-      ['مسکونی','سوئیت',     /سوئیت/],
-      ['مسکونی','خانه',      /خانه|منزل|مسکونی/],
-      ['باغ و ویلا','باغ',   /باغ/],
-      ['باغ و ویلا','باغچه', /باغچه/],
-      ['تجاری','مغازه',      /مغازه|حجره/],
-      ['اداری','دفتر کار',   /دفتر\s*کار/],
-      ['اداری','اداری',      /اداری/],
-      ['اداری','مطب',        /مطب/],
-      ['اداری','کلینیک',     /کلینیک/],
-      ['صنعتی','سوله',       /سوله/],
-      ['صنعتی','کارخانه',    /کارخانه|کارگاه/],
-      ['زمین','زمین مسکونی', /زمین\s*مسکونی/],
-      ['زمین','زمین کشاورزی',/زمین\s*(کشاورزی|زراعی)/],
-      ['زمین','زمین صنعتی',  /زمین\s*صنعتی/]
-    ];
-    for(const [broad, spec, re] of map){
-      if(re.test(t)){ r._cat = broad; r._type = spec; break; }
-    }
-    if(!r._cat && /زمین/.test(t)){ r._cat='زمین'; r._type='زمین مسکونی'; }
-    m = t.match(/(?:متراژ|مساحت|زیربنا|زیر\s*بنا)\s*[:\-]?\s*(\d+)/);
-    if(!m) m = t.match(/(\d+)\s*متر/);
+
+    // ترتیب مهمه: خانه قبل از ویلا (چون "خانه و ویلا" در متن زیاد داریم)
+    if(/آپارتمان|اپارتمان/.test(t)){ r._cat='مسکونی'; r._type='آپارتمان'; }
+    else if(/سوئیت/.test(t)){ r._cat='مسکونی'; r._type='سوئیت'; }
+    else if(/خانه|منزل/.test(t)){ r._cat='مسکونی'; r._type='خانه'; }
+    else if(/ویلا/.test(t)){ r._cat='مسکونی'; r._type='ویلا'; }
+    else if(/باغچه/.test(t)){ r._cat='باغ و ویلا'; r._type='باغچه'; }
+    else if(/باغ/.test(t)){ r._cat='باغ و ویلا'; r._type='باغ'; }
+    else if(/مغازه|حجره/.test(t)){ r._cat='تجاری'; r._type='مغازه'; }
+    else if(/دفتر\s*کار/.test(t)){ r._cat='اداری'; r._type='دفتر کار'; }
+    else if(/مطب/.test(t)){ r._cat='اداری'; r._type='مطب'; }
+    else if(/کلینیک/.test(t)){ r._cat='اداری'; r._type='کلینیک'; }
+    else if(/اداری/.test(t)){ r._cat='اداری'; r._type='اداری'; }
+    else if(/سوله/.test(t)){ r._cat='صنعتی'; r._type='سوله'; }
+    else if(/کارخانه|کارگاه/.test(t)){ r._cat='صنعتی'; r._type='کارخانه'; }
+    else if(/زمین\s*کشاورزی|زراعی/.test(t)){ r._cat='زمین'; r._type='زمین کشاورزی'; }
+    else if(/زمین\s*صنعتی/.test(t)){ r._cat='زمین'; r._type='زمین صنعتی'; }
+    else if(/زمین/.test(t)){ r._cat='زمین'; r._type='زمین مسکونی'; }
+
+    m = t.match(/(?:متراژ|مساحت|زیربنا|زیر\s*بنا)\s*[:\-]?\s*(\d+)/) || t.match(/(\d+)\s*متر/);
     if(m) r.area = m[1];
+
     m = t.match(/(?:تعداد\s*(?:اتاق|خواب)|اتاق|خواب)\s*[:\-]?\s*(یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|\d+)/);
     if(m) r.rooms = W[m[1]] !== undefined ? W[m[1]] : m[1];
+
     m = t.match(/طبقه\s*[:\-]?\s*(همکف|اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|\d+)/);
     if(m) r.floor = W[m[1]] !== undefined ? W[m[1]] : m[1];
+
     m = t.match(/(?:سال\s*ساخت|ساخت)\s*[:\-]?\s*(\d{2,4})/);
     if(m) r.year = m[1];
-    m = t.match(/(?:ودیعه|پول\s*پیش|رهن|پیش\s*پرداخت)[^\n]*?([\d.]+)/);
+
+    m = t.match(/(?:ودیعه|پول\s*پیش|رهن|پیش\s*پرداخت)[^\d\n]*?([\d]{5,})/);
     if(m) r.rahn = m[1];
-    m = t.match(/(?:اجاره\s*ماهانه|اجاره)[^\n]*?([\d.]+)/);
+
+    m = t.match(/(?:اجاره\s*ماهانه|اجاره)[^\d\n]*?([\d]{4,})/);
     if(m) r.rent = m[1];
-    m = t.match(/(?:قیمت(?:\s*کل)?|مبلغ)[^\n]*?([\d.]+)/);
+
+    m = t.match(/(?:قیمت(?:\s*کل)?|مبلغ)[^\d\n]*?([\d]{5,})/);
     if(m) r.price = m[1];
-    m = t.match(/(?:موقعیت\s*مکانی|آدرس|محله|خیابان|کوچه|بلوار)\s*[:\-]?\s*([^\n]+)/);
+
+    m = t.match(/(?:موقعیت\s*مکانی|محله|محدوده)\s*[:\-]?\s*([^\n]+)/);
+    if(m) r.neighborhood = m[1].replace(/[\(\（][^\)\）]*[\)\）]/g,'').trim().slice(0,60);
+    m = t.match(/(?:آدرس|خیابان|کوچه|بلوار)\s*[:\-]?\s*([^\n]+)/);
     if(m) r.address = m[1].replace(/[\(\（][^\)\）]*[\)\）]/g,'').trim().slice(0,80);
+
     const amen = n => { const mm = t.match(new RegExp(n+'\\s*[:\\-]?\\s*(دارد|ندارد|ندار|دار)')); if(mm) return /دارد|دار/.test(mm[1])?'دارد':'ندارد'; };
     r.parking = amen('پارکینگ');
     r.storage = amen('انباری');
     r.balcony = amen('بالکن');
     return r;
   }
-  function clickChip(cid, val){
+
+  function clickChipById(cid, val){
     const cs = document.querySelectorAll('#'+cid+' .chip');
     for(const c of cs) if(c.dataset.v === val){ c.click(); return true; }
     return false;
   }
-  function setF(id, val){
-    const el = document.getElementById(id);
-    if(!el || val === undefined || val === null || val === '') return false;
-    el.value = val;
-    el.dispatchEvent(new Event('input',{bubbles:true}));
-    el.dispatchEvent(new Event('change',{bubbles:true}));
-    return true;
+  function clickChipByText(txt){
+    const cs = document.querySelectorAll('.chip, button');
+    for(const c of cs){
+      if((c.textContent||'').trim() === txt){ c.click(); return true; }
+    }
+    return false;
   }
+  function setInputByLabel(labels, val){
+    if(val === undefined || val === '') return false;
+    const all = document.querySelectorAll('label, div, span, p');
+    for(const n of all){
+      if(n.children.length > 1) continue;
+      const txt = (n.textContent||'').replace(/[\*:：]/g,'').trim();
+      if(!txt || txt.length > 40) continue;
+      for(const want of labels){
+        if(txt === want || txt.indexOf(want) === 0){
+          let par = n.parentElement;
+          for(let i=0;i<4 && par;i++){
+            const inp = par.querySelector('input:not([type=file]), select, textarea');
+            if(inp && !inp.value){
+              inp.value = val;
+              inp.dispatchEvent(new Event('input',{bubbles:true}));
+              inp.dispatchEvent(new Event('change',{bubbles:true}));
+              return true;
+            }
+            par = par.parentElement;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   async function smartFill(){
     const text = prompt('📝 متن توضیحات ملک را پیست کنید:');
     if(!text) return;
@@ -481,33 +515,40 @@
     }
     const p = parse(text), rep = [];
     const role = p._rent ? 'موجر' : 'فروشنده';
-    if(clickChip('p-role-chips', role)) rep.push('✅ نقش: '+role);
+    if(clickChipById('p-role-chips', role)) rep.push('✅ نقش: '+role);
     await sleep(200);
-    let deal = p._exchange ? 'معاوضه' : (p._rent ? 'اجاره' : 'فروش');
-    if(clickChip('p-deal-chips', deal)) rep.push('✅ معامله: '+deal);
+    const deal = p._exchange ? 'معاوضه' : (p._rent ? 'اجاره' : 'فروش');
+    if(clickChipById('p-deal-chips', deal)) rep.push('✅ معامله: '+deal);
     await sleep(200);
-    if(p._cat && clickChip('p-cat-chips', p._cat)) rep.push('✅ دسته: '+p._cat);
+    if(p._cat && clickChipById('p-cat-chips', p._cat)) rep.push('✅ دسته: '+p._cat);
     else rep.push('⚠️ دسته');
     await sleep(200);
-    if(p._type && clickChip('p-type-chips', p._type)) rep.push('✅ نوع: '+p._type);
+    if(p._type && clickChipById('p-type-chips', p._type)) rep.push('✅ نوع: '+p._type);
     else rep.push('⚠️ نوع');
-    await sleep(500);
-    const pf = (id, val, name) => {
+    await sleep(600);
+
+    const trySet = (labels, val, name) => {
       if(val === undefined || val === '') return;
-      if(setF('pf-'+id, val)) rep.push('✅ '+name+': '+val);
+      if(setInputByLabel(labels, val)) rep.push('✅ '+name+': '+val);
       else rep.push('⚠️ '+name);
     };
-    pf('area', p.area, 'مساحت');
-    pf('rooms', p.rooms, 'خواب');
-    pf('floor', p.floor, 'طبقه');
-    pf('year', p.year, 'سال ساخت');
-    pf('rahn', p.rahn, 'ودیعه');
-    pf('rent', p.rent, 'اجاره');
-    pf('price', p.price, 'قیمت');
-    pf('address', p.address, 'آدرس');
-    pf('parking', p.parking, 'پارکینگ');
-    pf('storage', p.storage, 'انباری');
-    pf('balcony', p.balcony, 'بالکن');
+    trySet(['متراژ','مساحت','زیربنا','زیر بنا'], p.area, 'مساحت');
+    trySet(['تعداد خواب','خواب','اتاق'], p.rooms, 'خواب');
+    trySet(['طبقه'], p.floor, 'طبقه');
+    trySet(['سال ساخت','ساخت'], p.year, 'سال ساخت');
+    trySet(['محله','محدوده'], p.neighborhood, 'محله');
+    trySet(['آدرس'], p.address, 'آدرس');
+    trySet(['ودیعه'], p.rahn, 'ودیعه');
+    trySet(['اجاره'], p.rent, 'اجاره');
+    trySet(['قیمت کل','قیمت'], p.price, 'قیمت');
+
+    if(p.parking === 'دارد' && clickChipByText('پارکینگ')) rep.push('✅ پارکینگ');
+    else if(p.parking === 'دارد') rep.push('⚠️ پارکینگ');
+    if(p.storage === 'دارد' && clickChipByText('انباری')) rep.push('✅ انباری');
+    else if(p.storage === 'دارد') rep.push('⚠️ انباری');
+    if(p.balcony === 'دارد' && clickChipByText('بالکن')) rep.push('✅ بالکن');
+    else if(p.balcony === 'دارد') rep.push('⚠️ بالکن');
+
     setTimeout(()=> alert('گزارش:\n\n'+(rep.join('\n')||'چیزی پیدا نشد')), 100);
   }
   window.ayandehFill = smartFill;

@@ -718,5 +718,166 @@ input:focus, select:focus, textarea:focus { border-color: #a855f7; background: #
   setInterval(addToggle, 1000);
 })();
 </script>
+<script>
+(function(){
+const FA='۰۱۲۳۴۵۶۷۸۹',KEY='ayandeh-lt';
+const fa=n=>String(n||'').replace(/\d/g,d=>FA[d]);
+const toEn=s=>String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d));
+const get=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+const set=l=>localStorage.setItem(KEY,JSON.stringify(l));
+const getCust=()=>{try{return JSON.parse(localStorage.getItem('customers')||'[]')}catch(e){return[]}};
+
+if(!document.getElementById('lt2-css')){
+const st=document.createElement('style');st.id='lt2-css';
+st.textContent=`
+.lt2-sec{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:16px;padding:14px;margin:0 0 14px;border:1px solid #fcd34d}
+.lt2-h{font-size:14px;font-weight:800;color:#92400e;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.lt2-h span{font-size:11.5px;font-weight:500;color:#a16207}
+.lt2-i{background:#fff;border-radius:12px;padding:12px;margin-bottom:7px;display:flex;gap:10px;align-items:center;border-right:3px solid #f59e0b}
+.lt2-inf{flex:1;min-width:0}
+.lt2-nm{font-size:13.5px;font-weight:700;color:#1a1a2e}
+.lt2-dt{font-size:11.5px;color:#6b7280;margin-top:3px}
+.lt2-tg{display:inline-block;background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px}
+.lt2-sms{width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:16px;cursor:pointer;box-shadow:0 3px 10px rgba(22,163,74,.3);flex-shrink:0}
+.lt2-em{text-align:center;color:#92400e;font-size:12px;padding:8px;line-height:1.7}
+.lt2-ov{position:fixed;inset:0;background:rgba(15,10,30,.72);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
+.lt2-cd{background:#fff;border-radius:22px;padding:22px;max-width:460px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.lt2-hd{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #f0ecfb}
+.lt2-ic{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:22px}
+.lt2-tt{font-size:16px;font-weight:800;color:#166534}
+.lt2-sb{font-size:12px;color:#6b7280;margin-top:2px}
+.lt2-in{background:#f0fdf4;border-radius:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #bbf7d0;font-size:13px;color:#166534;line-height:1.8}
+.lt2-lb{display:block;font-size:12.5px;font-weight:700;color:#5b5273;margin:12px 0 6px}
+.lt2-tx{width:100%;padding:13px 15px;border:1.5px solid #bbf7d0;border-radius:12px;font-size:13.5px;font-family:inherit;background:#fafaff;outline:none;box-sizing:border-box;line-height:1.85;min-height:190px;resize:vertical;color:#1a1a2e}
+.lt2-bt{display:flex;gap:8px;margin-top:16px}
+.lt2-sd{flex:1;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(22,163,74,.35)}
+.lt2-cn{padding:15px 22px;border:none;border-radius:14px;background:#f4f4f7;color:#555;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.lt2-nt{font-size:11.5px;color:#6b7280;margin-top:10px;text-align:center;font-style:italic}
+`;document.head.appendChild(st);}
+
+const DEFAULT_MSG='سلام، وقت بخیر 🌹\n\nقاسمی هستم از املاک آینده‌ساز.\n\nچند وقت پیش با ما در ارتباط بودید. گفتم یه سلامی بکنم و احوالی بپرسم.\n\nخواستم ببینم الان چیزی نیاز دارید یا نه؟\nاگه دنبال ملک هستید، بگید اجاره یا خرید تا بهتر کمکتون کنم.\n\nمراقب خودتون باشید 🌹';
+
+function parseDate(s){
+if(!s)return null;
+s=toEn(String(s)).trim();
+const m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+if(!m)return null;
+let y=+m[1],mo=+m[2],d=+m[3];
+if(y>1300&&y<1500){y+=621;if(mo>10)mo-=1;}
+return new Date(y,mo-1,d);
+}
+function daysSince(dt){const n=new Date();n.setHours(0,0,0,0);const d=new Date(dt);d.setHours(0,0,0,0);return Math.round((n-d)/864e5);}
+function getCustDate(c){return parseDate(c.date||c.createdAt||c.created||c.registerDate||c.jalaliDate);}
+function isRenter(c){const r=c.role||'';return r==='مستأجر'||r.includes('مستأجر')||r.includes('مستاجر');}
+function getPhone(c){return c.phone||c.mobile||c.phone1||c.tel||c.phone2||'';}
+function getName(c){return c.name||c.fullName||c.title||'بدون نام';}
+function getCustId(c,i){return c.id||('cust_'+(c.phone||c.name||i));}
+
+function scanRenters(){
+const cs=getCust();
+const list=get();
+cs.forEach((c,i)=>{
+if(!isRenter(c))return;
+const cd=getCustDate(c);
+if(!cd)return;
+const d=daysSince(cd);
+if(d<365)return;
+const id=getCustId(c,i);
+const existing=list.find(x=>String(x.id)===String(id));
+if(existing){
+if(existing.auto&&existing.lastSent){
+const ld=parseDate(existing.lastSent);
+if(ld){
+const since=daysSince(ld);
+existing.due=since>=365;
+}
+}
+return;
+}
+list.push({id,name:getName(c),date:new Date().toISOString().slice(0,10),note:'مستأجر - '+fa(d)+' روز از ثبت',auto:true,due:true});
+});
+set(list);
+}
+
+function openSms(item){
+const cs=getCust();
+let cust=null;
+for(let i=0;i<cs.length;i++){if(String(getCustId(cs[i],i))===String(item.id)){cust=cs[i];break;}}
+if(!cust){for(let i=0;i<cs.length;i++){if(getName(cs[i])===item.name){cust=cs[i];break;}}}
+const phone=cust?getPhone(cust):'';
+const ov=document.createElement('div');
+ov.className='lt2-ov';
+ov.innerHTML=`<div class="lt2-cd">
+<div class="lt2-hd"><div class="lt2-ic">💬</div><div><div class="lt2-tt">ارسال پیامک سالانه</div><div class="lt2-sb">با تأیید شما ارسال می‌شه</div></div></div>
+<div class="lt2-in"><strong>👤 ${item.name}</strong><br>📱 ${phone||'شماره ثبت نشده'}<br>📅 ${item.note||''}</div>
+<label class="lt2-lb">✏️ متن پیامک (قابل ویرایش):</label>
+<textarea class="lt2-tx" id="lt2T">${DEFAULT_MSG}</textarea>
+<div class="lt2-bt"><button class="lt2-sd" id="lt2S">📤 ارسال با پیامک</button><button class="lt2-cn" id="lt2X">لغو</button></div>
+<div class="lt2-nt">بعد از ارسال، یادآور بعدی خودکار ۱ سال دیگه تنظیم می‌شه</div>
+</div>`;
+document.body.appendChild(ov);
+document.getElementById('lt2X').onclick=()=>ov.remove();
+ov.onclick=e=>{if(e.target===ov)ov.remove()};
+document.getElementById('lt2S').onclick=()=>{
+const txt=document.getElementById('lt2T').value;
+if(!txt.trim())return alert('متن خالیه');
+if(!phone)return alert('شماره تماس ثبت نشده');
+const clean=String(phone).replace(/\D/g,'');
+if(clean.length<10)return alert('شماره معتبر نیست');
+window.location.href='sms:'+clean+'?body='+encodeURIComponent(txt);
+const list=get();
+const i=list.findIndex(x=>String(x.id)===String(item.id));
+if(i>=0){
+const now=new Date();
+const next=new Date(now);next.setFullYear(next.getFullYear()+1);
+list[i].lastSent=now.toISOString().slice(0,10);
+list[i].nextDate=next.toISOString().slice(0,10);
+list[i].due=false;
+set(list);
+}
+ov.remove();
+setTimeout(()=>alert('✅ پیامک ارسال شد\nیادآور بعدی: ۱ سال دیگه'),400);
+};
+}
+
+function render(){
+const t=document.getElementById('tab-customers');
+if(!t)return;
+const c=t.querySelector('.container');
+if(!c)return;
+let s=document.getElementById('lt2Sec');
+if(!s){
+s=document.createElement('div');
+s.id='lt2Sec';
+s.className='lt2-sec';
+const sb=c.querySelector('.search-box');
+if(sb&&sb.nextSibling)c.insertBefore(s,sb.nextSibling);
+else c.insertBefore(s,c.firstChild);
+}
+const all=get();
+const list=all.filter(x=>x.due!==false);
+if(!list.length){
+s.innerHTML='<div class="lt2-h">⏰ پیگیری سالانه مشتریان <span>مستأجرها</span></div><div class="lt2-em">هیچ مشتری مستأجری که یک سال از ثبتش گذشته باشه وجود نداره</div>';
+return;
+}
+let h=`<div class="lt2-h">⏰ پیگیری سالانه <span>${fa(list.length)} مورد</span></div>`;
+list.forEach(x=>{
+h+=`<div class="lt2-i"><div class="lt2-inf"><div class="lt2-nm">${x.name}</div><div class="lt2-dt"><span class="lt2-tg">مستأجر</span>${x.note||''}</div></div><button class="lt2-sms" data-id="${x.id}">💬</button></div>`;
+});
+s.innerHTML=h;
+s.querySelectorAll('.lt2-sms').forEach(b=>{
+b.onclick=()=>{
+const item=all.find(x=>String(x.id)===String(b.dataset.id));
+if(item)openSms(item);
+};
+});
+}
+
+function init(){scanRenters();render();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+setInterval(init,3000);
+})();
+  </script>
 </body>
                                                       </html>

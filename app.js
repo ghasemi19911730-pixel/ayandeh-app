@@ -236,7 +236,7 @@ function captureLocation() {
 function clearLocation() { currentLocation = null; $('p-location-status').textContent = 'لوکیشن ثبت نشده'; }
 // ═══════════ Gemini AI ═══════════
 const GEMINI_KEY = 'AQ.Ab8RN6JvOLPxL9x9GUZcAkL5dsr-SCRkzGY62APo7ofiEDQtfQ';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + GEMINI_KEY;
+const GEMINI_URL = 'https://billowing-rice-6ea0ayandeh-proxy.ghasemi19911730.workers.dev/v1beta/models/gemini-3.6-flash:generateContent';
 let ocrRunning = false;
 let geminiResult = null;
 

@@ -403,4 +403,50 @@
 </div>
 <script src="app.js?v=99"></script>
 </body>
+  <script>
+(function(){
+  const FA='۰۱۲۳۴۵۶۷۸۹';
+  const toEn = s => String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d));
+  const W = {یک:1,دو:2,سه:3,چهار:4,پنج:5,شش:6,هفت:7,هشت:8,اول:1,دوم:2,سوم:3,چهارم:4,پنجم:5,ششم:6,هفتم:7,هشتم:8,همکف:0};
+  function parse(text){
+    const t = toEn(text), r = {};
+    for (const ty of ['آپارتمان','خانه','ویلا','زمین','مغازه','تجاری','سوله','باغ','کلنگی']) if (t.includes(ty)) { r.cat = ty; break; }
+    let m = t.match(/(\d+)\s*متر/); if (m) r.area = +m[1];
+    m = t.match(/(یک|دو|سه|چهار|پنج|شش|هفت|\d+)\s*خواب/); if (m) r.rooms = isNaN(m[1]) ? W[m[1]] : +m[1];
+    m = t.match(/طبقه\s*(همکف|اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|\d+)/); if (m) r.floor = isNaN(m[1]) ? W[m[1]] : +m[1];
+    m = t.match(/(?:ساخت)\s*[:\-]?\s*(\d{2,4})/); if (m) r.year = +m[1];
+    m = t.match(/(?:قیمت)\s*[:\-]?\s*(\d+)/); if (m) r.price = +m[1];
+    m = t.match(/(?:خیابان|کوچه|بلوار|میدان)\s*[:\-]?\s*([^\n،,]+)/); if (m) r.address = m[1].trim();
+    return r;
+  }
+  function fillFields(){
+    const text = prompt('متن توضیحات ملک را پیست کنید:');
+    if (!text) return;
+    const p = parse(text);
+    let count = 0;
+    function sv(id, v){ const el = document.getElementById(id); if (el && v !== undefined && v !== ''){ el.value = v; count++; } }
+    sv('pf-area', p.area);
+    sv('pf-rooms', p.rooms);
+    sv('pf-floor', p.floor);
+    sv('pf-year', p.year);
+    sv('pf-address', p.address);
+    setTimeout(()=>{
+      if (count > 0) alert('✅ ' + count + ' فیلد پر شد');
+      else alert('❌ چیزی پیدا نشد');
+    }, 100);
+  }
+  function addFloat(){
+    if (document.getElementById('btn-parse-text')) return;
+    const b = document.createElement('button');
+    b.id = 'btn-parse-text'; b.type = 'button';
+    b.textContent = '📝';
+    b.style.cssText = 'position:fixed;left:20px;bottom:80px;width:56px;height:56px;border-radius:50%;background:#7c3aed;color:#fff;border:none;font-size:24px;box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer;z-index:9999;';
+    b.onclick = fillFields;
+    document.body.appendChild(b);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addFloat);
+  else addFloat();
+  setInterval(addFloat, 1000);
+})();
+  </script>
                                                       </html>

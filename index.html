@@ -408,14 +408,47 @@
   const toEn = s => String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d)).replace(/,/g,'').replace(/\u200c/g,' ');
   const W = {یک:1,دو:2,سه:3,چهار:4,پنج:5,شش:6,هفت:7,هشت:8,نه:9,ده:10};
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const fmt = n => { if(n===undefined||n===null||n==='')return '—'; const num=String(n).replace(/\D/g,''); if(!num)return '—'; return num.replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+  const faNum = n => String(n||'').replace(/\d/g, d => FA[d]);
+
+  if(!document.getElementById('ayandeh-styles')){
+    const st = document.createElement('style');
+    st.id = 'ayandeh-styles';
+    st.textContent = `
+      @keyframes ap-fadeIn { from{opacity:0} to{opacity:1} }
+      @keyframes ap-slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+      @keyframes ap-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+      .ap-btn{position:fixed;left:16px;bottom:180px;height:52px;padding:0 18px 0 14px;border-radius:26px;background:linear-gradient(135deg,#7c3aed 0%,#a855f7 50%,#d946ef 100%);color:#fff;border:none;font-size:14px;font-weight:700;font-family:Vazirmatn,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(124,58,237,.4);cursor:pointer;z-index:99999;display:flex;align-items:center;gap:8px;animation:ap-pulse 2.5s ease-in-out infinite;transition:all .25s;}
+      .ap-btn:active{transform:scale(.96);}
+      .ap-btn .ap-ic{font-size:22px;line-height:1;}
+      .ap-overlay{position:fixed;inset:0;background:rgba(15,10,30,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Vazirmatn,Tahoma,sans-serif;direction:rtl;animation:ap-fadeIn .2s;}
+      .ap-card{background:#fff;border-radius:22px;max-width:440px;width:100%;max-height:90vh;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:ap-slideUp .35s cubic-bezier(.2,.9,.3,1.2);display:flex;flex-direction:column;}
+      .ap-head{background:linear-gradient(135deg,#7c3aed 0%,#a855f7 55%,#d946ef 100%);color:#fff;padding:22px 20px 18px;}
+      .ap-title{font-size:19px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+      .ap-sub{font-size:12px;opacity:.9;}
+      .ap-badge{display:inline-block;background:rgba(255,255,255,.22);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-top:10px;}
+      .ap-body{padding:8px 0;overflow-y:auto;flex:1;}
+      .ap-row{display:flex;align-items:center;padding:13px 20px;border-bottom:1px solid #f4f4f7;}
+      .ap-row:last-child{border-bottom:none;}
+      .ap-icn{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-left:12px;flex-shrink:0;}
+      .ap-lbl{color:#888;font-size:12.5px;font-weight:500;min-width:78px;}
+      .ap-val{color:#1a1a2e;font-weight:700;font-size:14px;margin-right:auto;text-align:left;}
+      .ap-val.money{color:#16a34a;font-weight:800;font-size:14.5px;}
+      .ap-val.rent{color:#dc2626;}
+      .ap-foot{padding:14px 16px 16px;display:flex;gap:10px;background:#fff;border-top:1px solid #f0f0f4;}
+      .ap-confirm{flex:1;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(22,163,74,.35);}
+      .ap-cancel{padding:15px 22px;border:none;border-radius:14px;background:#f4f4f7;color:#555;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+      .ap-empty{padding:40px 20px;text-align:center;color:#999;}
+      .ap-empty .ap-eic{font-size:48px;display:block;margin-bottom:12px;opacity:.5;}
+    `;
+    document.head.appendChild(st);
+  }
 
   function parse(text){
     const t = toEn(text), r = {};
     let m;
     r._rent = /اجاره|رهن|ودیعه|مستأجر|مستاجر/.test(t);
     r._exchange = /معاوضه|تبدیل/.test(t);
-
-    // ترتیب مهمه: خانه قبل از ویلا (چون "خانه و ویلا" در متن زیاد داریم)
     if(/آپارتمان|اپارتمان/.test(t)){ r._cat='مسکونی'; r._type='آپارتمان'; }
     else if(/سوئیت/.test(t)){ r._cat='مسکونی'; r._type='سوئیت'; }
     else if(/خانه|منزل/.test(t)){ r._cat='مسکونی'; r._type='خانه'; }
@@ -432,130 +465,127 @@
     else if(/زمین\s*کشاورزی|زراعی/.test(t)){ r._cat='زمین'; r._type='زمین کشاورزی'; }
     else if(/زمین\s*صنعتی/.test(t)){ r._cat='زمین'; r._type='زمین صنعتی'; }
     else if(/زمین/.test(t)){ r._cat='زمین'; r._type='زمین مسکونی'; }
-
     m = t.match(/(?:متراژ|مساحت|زیربنا|زیر\s*بنا)\s*[:\-]?\s*(\d+)/) || t.match(/(\d+)\s*متر/);
     if(m) r.area = m[1];
-
     m = t.match(/(?:تعداد\s*(?:اتاق|خواب)|اتاق|خواب)\s*[:\-]?\s*(یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|\d+)/);
     if(m) r.rooms = W[m[1]] !== undefined ? W[m[1]] : m[1];
-
     m = t.match(/طبقه\s*[:\-]?\s*(همکف|اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|\d+)/);
     if(m) r.floor = W[m[1]] !== undefined ? W[m[1]] : m[1];
-
     m = t.match(/(?:سال\s*ساخت|ساخت)\s*[:\-]?\s*(\d{2,4})/);
     if(m) r.year = m[1];
-
     m = t.match(/(?:ودیعه|پول\s*پیش|رهن|پیش\s*پرداخت)[^\d\n]*?([\d]{5,})/);
     if(m) r.rahn = m[1];
-
     m = t.match(/(?:اجاره\s*ماهانه|اجاره)[^\d\n]*?([\d]{4,})/);
     if(m) r.rent = m[1];
-
     m = t.match(/(?:قیمت(?:\s*کل)?|مبلغ)[^\d\n]*?([\d]{5,})/);
     if(m) r.price = m[1];
-
     m = t.match(/(?:موقعیت\s*مکانی|محله|محدوده)\s*[:\-]?\s*([^\n]+)/);
     if(m) r.neighborhood = m[1].replace(/[\(\（][^\)\）]*[\)\）]/g,'').trim().slice(0,60);
     m = t.match(/(?:آدرس|خیابان|کوچه|بلوار)\s*[:\-]?\s*([^\n]+)/);
     if(m) r.address = m[1].replace(/[\(\（][^\)\）]*[\)\）]/g,'').trim().slice(0,80);
-
     const amen = n => { const mm = t.match(new RegExp(n+'\\s*[:\\-]?\\s*(دارد|ندارد|ندار|دار)')); if(mm) return /دارد|دار/.test(mm[1])?'دارد':'ندارد'; };
     r.parking = amen('پارکینگ');
     r.storage = amen('انباری');
     r.balcony = amen('بالکن');
     return r;
   }
-
-  function clickChipById(cid, val){
-    const cs = document.querySelectorAll('#'+cid+' .chip');
-    for(const c of cs) if(c.dataset.v === val){ c.click(); return true; }
-    return false;
-  }
-  function clickChipByText(txt){
-    const cs = document.querySelectorAll('.chip, button');
-    for(const c of cs){
-      if((c.textContent||'').trim() === txt){ c.click(); return true; }
-    }
-    return false;
-  }
-  function setInputByLabel(labels, val){
-    if(val === undefined || val === '') return false;
-    const all = document.querySelectorAll('label, div, span, p');
-    for(const n of all){
-      if(n.children.length > 1) continue;
-      const txt = (n.textContent||'').replace(/[\*:：]/g,'').trim();
+  function clickChipById(cid, val){ const cs = document.querySelectorAll('#'+cid+' .chip'); for(const c of cs) if(c.dataset.v === val){ c.click(); return true; } return false; }
+  function clickChipByText(txt){ const cs = document.querySelectorAll('.chip'); for(const c of cs){ const t=(c.textContent||'').replace(/[^\u0600-\u06FF\s]/g,'').trim(); if(t === txt){ c.click(); return true; } } return false; }
+  function setVal(id, val){ if(val===undefined||val===null||val==='')return false; const el=document.getElementById(id); if(!el)return false; el.value=String(val); el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return true; }
+  function setByLabel(labels, val){
+    if(val===undefined||val===null||val==='')return false;
+    const lbls = document.querySelectorAll('label, .field-label');
+    for(const lbl of lbls){
+      const txt = (lbl.textContent||'').replace(/[\*:：]/g,'').trim();
       if(!txt || txt.length > 40) continue;
       for(const want of labels){
         if(txt === want || txt.indexOf(want) === 0){
-          let par = n.parentElement;
-          for(let i=0;i<4 && par;i++){
-            const inp = par.querySelector('input:not([type=file]), select, textarea');
-            if(inp && !inp.value){
-              inp.value = val;
-              inp.dispatchEvent(new Event('input',{bubbles:true}));
-              inp.dispatchEvent(new Event('change',{bubbles:true}));
-              return true;
-            }
-            par = par.parentElement;
-          }
+          const par = lbl.closest('.field') || lbl.parentElement;
+          if(!par) continue;
+          const inp = par.querySelector('input:not([type=file]), select, textarea');
+          if(inp && !inp.value){ inp.value = String(val); inp.dispatchEvent(new Event('input',{bubbles:true})); inp.dispatchEvent(new Event('change',{bubbles:true})); return true; }
         }
       }
     }
     return false;
   }
-
+  function setField(id, labels, val){ if(val===undefined||val===null||val==='')return false; return setVal('pf-'+id, val) || setByLabel(labels, val); }
+  function row(icn, icnBg, icnColor, lbl, val, cls){
+    if(!val || val === '—') return '';
+    return `<div class="ap-row"><div class="ap-icn" style="background:${icnBg};color:${icnColor};">${icn}</div><div class="ap-lbl">${lbl}</div><div class="ap-val ${cls||''}">${val}</div></div>`;
+  }
+  function showPreview(p, onConfirm){
+    const old = document.getElementById('ayandeh-preview'); if(old) old.remove();
+    const wrap = document.createElement('div');
+    wrap.id = 'ayandeh-preview'; wrap.className = 'ap-overlay';
+    const title = p._rent ? '🏠 آگهی اجاره' : (p._exchange ? '🔄 معاوضه' : '💰 آگهی فروش');
+    const catLine = [p._cat, p._type].filter(Boolean).join(' • ') || 'ملک';
+    const badge = p._rent ? 'رهن و اجاره' : (p._exchange ? 'معاوضه' : 'فروش');
+    let body = '';
+    body += row('📐','#ede9fe','#7c3aed','متراژ', p.area ? faNum(p.area)+' متر' : '');
+    body += row('🛏','#dbeafe','#2563eb','خواب', p.rooms !== undefined ? faNum(p.rooms)+' خواب' : '');
+    body += row('🏢','#fef3c7','#d97706','طبقه', p.floor !== undefined ? faNum(p.floor) : '');
+    body += row('📅','#dcfce7','#16a34a','سال ساخت', p.year ? faNum(p.year) : '');
+    body += row('📍','#fee2e2','#dc2626','محله', p.neighborhood);
+    body += row('🗺','#e0e7ff','#4f46e5','آدرس', p.address);
+    if(p._rent){
+      body += row('💰','#dcfce7','#16a34a','ودیعه', p.rahn ? fmt(p.rahn)+' تومان' : '', 'money');
+      body += row('📆','#fee2e2','#dc2626','اجاره', p.rent ? fmt(p.rent)+' تومان' : '', 'rent');
+    } else {
+      body += row('💵','#dcfce7','#16a34a','قیمت', p.price ? fmt(p.price)+' تومان' : '', 'money');
+    }
+    body += row('🚗','#f1f5f9','#475569','پارکینگ', p.parking === 'دارد' ? '✅ دارد' : '');
+    body += row('📦','#f1f5f9','#475569','انباری', p.storage === 'دارد' ? '✅ دارد' : '');
+    body += row('🌿','#f1f5f9','#475569','بالکن', p.balcony === 'دارد' ? '✅ دارد' : '');
+    if(!body) body = '<div class="ap-empty"><span class="ap-eic">🔍</span>چیزی پیدا نشد<br><small>متن رو دقیق‌تر بنویس</small></div>';
+    wrap.innerHTML = `<div class="ap-card"><div class="ap-head"><div class="ap-title">${title}</div><div class="ap-sub">${catLine}</div><div class="ap-badge">${badge}</div></div><div class="ap-body">${body}</div><div class="ap-foot"><button class="ap-confirm" id="ap-confirm">✅ تأیید و پر کردن</button><button class="ap-cancel" id="ap-cancel">لغو</button></div></div>`;
+    document.body.appendChild(wrap);
+    document.getElementById('ap-confirm').onclick = () => { wrap.remove(); onConfirm(); };
+    document.getElementById('ap-cancel').onclick = () => wrap.remove();
+    wrap.onclick = e => { if(e.target === wrap) wrap.remove(); };
+  }
+  async function applyFill(p){
+    const rep = [];
+    const role = p._rent ? 'موجر' : 'فروشنده';
+    if(clickChipById('p-role-chips', role)) rep.push('✅ نقش: '+role);
+    await sleep(300);
+    const deal = p._exchange ? 'معاوضه' : (p._rent ? 'اجاره' : 'فروش');
+    if(clickChipById('p-deal-chips', deal)) rep.push('✅ معامله: '+deal);
+    await sleep(300);
+    if(p._cat && clickChipById('p-cat-chips', p._cat)) rep.push('✅ دسته: '+p._cat);
+    await sleep(300);
+    if(p._type && clickChipById('p-type-chips', p._type)) rep.push('✅ نوع: '+p._type);
+    await sleep(900);
+    const trySet = (id, labels, val, name) => { if(val===undefined||val==='')return; if(setField(id, labels, val)) rep.push('✅ '+name); else rep.push('⚠️ '+name); };
+    trySet('area', ['متراژ (زیر بنا)','متراژ (زیربنا)','مساحت'], p.area, 'مساحت');
+    trySet('rooms', ['تعداد خواب','خواب'], p.rooms, 'خواب');
+    trySet('floor', ['طبقه'], p.floor, 'طبقه');
+    trySet('year', ['سال ساخت'], p.year, 'سال ساخت');
+    trySet('neighborhood', ['محله / محدوده','محله','محدوده'], p.neighborhood, 'محله');
+    trySet('address', ['آدرس دقیق','آدرس'], p.address, 'آدرس');
+    trySet('rahn', ['ودیعه'], p.rahn, 'ودیعه');
+    trySet('rent', ['اجاره'], p.rent, 'اجاره');
+    trySet('price', ['قیمت کل','قیمت'], p.price, 'قیمت');
+    await sleep(300);
+    if(p.parking === 'دارد' && clickChipByText('پارکینگ')) rep.push('✅ پارکینگ');
+    if(p.storage === 'دارد' && clickChipByText('انباری')) rep.push('✅ انباری');
+    if(p.balcony === 'دارد' && clickChipByText('بالکن')) rep.push('✅ بالکن');
+    setTimeout(()=> alert('گزارش:\n\n'+(rep.join('\n')||'چیزی پیدا نشد')), 200);
+  }
   async function smartFill(){
     const text = prompt('📝 متن توضیحات ملک را پیست کنید:');
     if(!text) return;
     const modal = document.getElementById('modal-property');
-    if(!modal || !modal.classList.contains('show')){
-      alert('❌ اول پنجره + فایل جدید رو باز کن');
-      return;
-    }
-    const p = parse(text), rep = [];
-    const role = p._rent ? 'موجر' : 'فروشنده';
-    if(clickChipById('p-role-chips', role)) rep.push('✅ نقش: '+role);
-    await sleep(200);
-    const deal = p._exchange ? 'معاوضه' : (p._rent ? 'اجاره' : 'فروش');
-    if(clickChipById('p-deal-chips', deal)) rep.push('✅ معامله: '+deal);
-    await sleep(200);
-    if(p._cat && clickChipById('p-cat-chips', p._cat)) rep.push('✅ دسته: '+p._cat);
-    else rep.push('⚠️ دسته');
-    await sleep(200);
-    if(p._type && clickChipById('p-type-chips', p._type)) rep.push('✅ نوع: '+p._type);
-    else rep.push('⚠️ نوع');
-    await sleep(600);
-
-    const trySet = (labels, val, name) => {
-      if(val === undefined || val === '') return;
-      if(setInputByLabel(labels, val)) rep.push('✅ '+name+': '+val);
-      else rep.push('⚠️ '+name);
-    };
-    trySet(['متراژ','مساحت','زیربنا','زیر بنا'], p.area, 'مساحت');
-    trySet(['تعداد خواب','خواب','اتاق'], p.rooms, 'خواب');
-    trySet(['طبقه'], p.floor, 'طبقه');
-    trySet(['سال ساخت','ساخت'], p.year, 'سال ساخت');
-    trySet(['محله','محدوده'], p.neighborhood, 'محله');
-    trySet(['آدرس'], p.address, 'آدرس');
-    trySet(['ودیعه'], p.rahn, 'ودیعه');
-    trySet(['اجاره'], p.rent, 'اجاره');
-    trySet(['قیمت کل','قیمت'], p.price, 'قیمت');
-
-    if(p.parking === 'دارد' && clickChipByText('پارکینگ')) rep.push('✅ پارکینگ');
-    else if(p.parking === 'دارد') rep.push('⚠️ پارکینگ');
-    if(p.storage === 'دارد' && clickChipByText('انباری')) rep.push('✅ انباری');
-    else if(p.storage === 'دارد') rep.push('⚠️ انباری');
-    if(p.balcony === 'دارد' && clickChipByText('بالکن')) rep.push('✅ بالکن');
-    else if(p.balcony === 'دارد') rep.push('⚠️ بالکن');
-
-    setTimeout(()=> alert('گزارش:\n\n'+(rep.join('\n')||'چیزی پیدا نشد')), 100);
+    if(!modal || !modal.classList.contains('show')){ alert('❌ اول پنجره + فایل جدید رو باز کن'); return; }
+    const p = parse(text);
+    showPreview(p, () => applyFill(p));
   }
   window.ayandehFill = smartFill;
   function addFloat(){
     if(document.getElementById('btn-parse-text')) return;
     const b = document.createElement('button');
-    b.id='btn-parse-text'; b.type='button'; b.textContent='📝';
-    b.style.cssText='position:fixed;left:20px;bottom:80px;width:56px;height:56px;border-radius:50%;background:#7c3aed;color:#fff;border:none;font-size:24px;box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer;z-index:99999;';
+    b.id='btn-parse-text'; b.className='ap-btn'; b.type='button';
+    b.innerHTML = '<span class="ap-ic">📝</span><span>پر کردن از متن</span>';
     b.onclick = smartFill;
     document.body.appendChild(b);
   }
@@ -563,6 +593,6 @@
   else addFloat();
   setInterval(addFloat, 1000);
 })();
-</script>
+               </script>
 </body>
                                                       </html>

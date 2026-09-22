@@ -1936,3 +1936,44 @@ function openCalendar() {
   $('modal-followups').querySelector('.modal-title').textContent = '📅 تقویم رویدادها';
   openModal('modal-followups');
 }
+// ========== پر کردن خودکار از متن ==========
+(function(){
+  const FA='۰۱۲۳۴۵۶۷۸۹', AR='٠١٢٣٤٥٦٧٨٩';
+  const toEn = s => String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d)).replace(/[٠-٩]/g,d=>AR.indexOf(d));
+  const W = {یک:1,دو:2,سه:3,چهار:4,پنج:5,شش:6,هفت:7,هشت:8,اول:1,دوم:2,سوم:3,چهارم:4,پنجم:5,ششم:6,هفتم:7,هشتم:8,همکف:0};
+  function parse(text){
+    const t = toEn(text), r = {};
+    for (const ty of ['آپارتمان','خانه','ویلا','زمین','مغازه','تجاری','سوله','باغ','کلنگی','سوئیت']) if (t.includes(ty)) { r.cat = ty; break; }
+    let m = t.match(/(\d+)\s*متر/); if (m) r.area = +m[1];
+    m = t.match(/(یک|دو|سه|چهار|پنج|شش|هفت|\d+)\s*خواب/); if (m) r.rooms = isNaN(m[1]) ? W[m[1]] : +m[1];
+    m = t.match(/طبقه\s*(همکف|اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|\d+)/); if (m) r.floor = isNaN(m[1]) ? W[m[1]] : +m[1];
+    m = t.match(/(?:سال\s*ساخت|ساخت)\s*[:\-]?\s*(\d{2,4})/); if (m) r.year = +m[1];
+    m = t.match(/(?:قیمت|مبلغ)\s*[:\-]?\s*(\d+)/); if (m) r.price = +m[1];
+    m = t.match(/(?:خیابان|کوچه|بلوار|میدان|آدرس)\s*[:\-]?\s*([^\n،,]+)/); if (m) r.address = m[1].trim();
+    return r;
+  }
+  window.fillFromText = function(){
+    const text = prompt('متن توضیحات ملک را پیست کنید:');
+    if (!text) return;
+    const p = parse(text);
+    const sv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+    ['area','land_area','rooms','floor','year','dehaneh','height'].forEach(k => sv('pf-'+k, p[k]));
+    if (p.address) sv('pf-address', p.address);
+    const tt = document.getElementById('p-title'); if (tt && !tt.value) tt.value = text.slice(0, 50);
+    const found = Object.entries(p).filter(([k,v]) => v !== undefined).map(([k,v]) => '• '+k+': '+v).join('\n');
+    alert(found ? 'استخراج شد:\n'+found : 'چیزی پیدا نشد. متن رو دقیق‌تر بنویس.');
+  };
+  function addBtn(){
+    const m = document.getElementById('modal-property');
+    if (!m || document.getElementById('btn-fill-text')) return;
+    const tgt = m.querySelector('.modal-body') || m.querySelector('.modal-content');
+    if (!tgt) return;
+    const b = document.createElement('button');
+    b.id = 'btn-fill-text'; b.type = 'button'; b.textContent = '📝 پر کردن از متن';
+    b.style.cssText = 'width:100%;padding:12px;margin:8px 0;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:15px;cursor:pointer;';
+    b.onclick = window.fillFromText;
+    tgt.insertBefore(b, tgt.firstChild);
+  }
+  document.addEventListener('click', e => { if ((e.target.textContent||'').includes('افزودن فایل')) setTimeout(addBtn, 200); }, true);
+  window.addEventListener('load', addBtn);
+})();

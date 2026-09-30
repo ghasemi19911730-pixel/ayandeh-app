@@ -739,7 +739,7 @@ hint.classList.add('show');
 }
 input.addEventListener('input',()=>{
 const raw=toEn(input.value);
-input.value=raw?fmt(raw):'';
+input.value=raw;
 update();
 });
 input.addEventListener('blur',update);

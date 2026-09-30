@@ -687,5 +687,82 @@ else init();
 setInterval(init,3000);
 })();
   </script>
+    <script>
+(function(){
+if(!document.getElementById('numfmt-css')){
+const st=document.createElement('style');
+st.id='numfmt-css';
+st.textContent=`
+.numfmt-hint{margin-top:6px;font-size:12.5px;font-weight:600;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:8px 12px;display:none;direction:rtl;text-align:right;line-height:1.7}
+.numfmt-hint.show{display:block}
+.numfmt-hint .words{color:#166534;font-weight:800}
+.numfmt-hint .num{color:#15803d;font-family:monospace;direction:ltr;display:inline-block;margin-right:6px}
+html.dark-mode .numfmt-hint{background:#0f2a1a;border-color:#166534;color:#86efac}
+html.dark-mode .numfmt-hint .words{color:#86efac}
+html.dark-mode .numfmt-hint .num{color:#4ade80}
+`;
+document.head.appendChild(st);
+}
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const toEn=s=>String(s||'').replace(/[۰-۹]/g,d=>FA.indexOf(d)).replace(/[^\d]/g,'');
+const faNum=s=>String(s).replace(/\d/g,d=>FA[d]);
+const fmt=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+function toWords(n){
+n=parseInt(n)||0;
+if(n===0)return '';
+if(n<1000)return faNum(n)+' تومان';
+if(n<1000000)return faNum(Math.round(n/1000))+' هزار تومان';
+if(n<1000000000){
+const m=n/1000000;
+if(m>=100)return faNum(Math.round(m))+' میلیون تومان';
+return faNum(m.toFixed(1).replace(/\.0$/,'').replace('.',','))+' میلیون تومان';
+}
+const b=n/1000000000;
+if(b>=100)return faNum(Math.round(b))+' میلیارد تومان';
+return faNum(b.toFixed(1).replace(/\.0$/,'').replace('.',','))+' میلیارد تومان';
+}
+function attach(input){
+if(input.dataset.numfmt)return;
+input.dataset.numfmt='1';
+input.setAttribute('inputmode','numeric');
+let hint=document.createElement('div');
+hint.className='numfmt-hint';
+input.parentNode.insertBefore(hint,input.nextSibling);
+function update(){
+const raw=toEn(input.value);
+if(!raw||raw==='0'){hint.classList.remove('show');return;}
+const num=parseInt(raw);
+const words=toWords(num);
+const fmted=fmt(num);
+hint.innerHTML='💵 <span class="words">'+words+'</span> <span class="num">('+fmted+')</span>';
+hint.classList.add('show');
+}
+input.addEventListener('input',()=>{
+const raw=toEn(input.value);
+input.value=raw?fmt(raw):'';
+update();
+});
+input.addEventListener('blur',update);
+if(input.value)update();
+}
+function scan(){
+document.querySelectorAll('input[type=number], input[type=text]').forEach(inp=>{
+const id=(inp.id||'').toLowerCase();
+const ph=(inp.placeholder||'').toLowerCase();
+const lb=inp.closest('.field');
+const lbl=lb&&lb.querySelector('.field-label')?lb.querySelector('.field-label').textContent:'' ;
+const t=(id+' '+ph+' '+lbl).toLowerCase();
+if(t.includes('price')||t.includes('rahn')||t.includes('rent')||t.includes('deposit')||
+   t.includes('ودیعه')||t.includes('اجاره')||t.includes('قیمت')||t.includes('مبلغ')||
+   t.includes('رهن')||t.includes('وام')||t.includes('سرفصل')){
+attach(inp);
+}
+});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);
+else scan();
+setInterval(scan,2000);
+})();
+    </script>
 </body>
                                                       </html>

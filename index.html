@@ -764,5 +764,216 @@ else scan();
 setInterval(scan,2000);
 })();
     </script>
+    <script>
+(function(){
+const KEY = 'ayandeh-colleagues';
+const FA = '۰۱۲۳۴۵۶۷۸۹';
+const fa = n => String(n||'').replace(/\d/g, d => FA[d]);
+
+if(!document.getElementById('col-css')){
+  const st = document.createElement('style');
+  st.id = 'col-css';
+  st.textContent = `
+    .col-btn{position:fixed;left:16px;bottom:180px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#fff;border:none;font-size:22px;cursor:pointer;z-index:99998;box-shadow:0 8px 20px rgba(14,165,233,.4);display:flex;align-items:center;justify-content:center}
+    .col-btn:active{transform:scale(.95)}
+    .col-ov{position:fixed;inset:0;background:rgba(15,10,30,.72);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
+    .col-card{background:#fff;border-radius:22px;max-width:480px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+    .col-head{background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#fff;padding:20px 22px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .col-ttl{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+    .col-close{background:rgba(255,255,255,.2);border:none;width:34px;height:34px;border-radius:50%;color:#fff;font-size:18px;cursor:pointer}
+    .col-search{padding:12px 16px 0;position:relative}
+    .col-search input{width:100%;padding:12px 40px 12px 14px;border:1.5px solid #e0e7ff;border-radius:12px;font-size:14px;font-family:inherit;background:#f8faff;outline:none;box-sizing:border-box;color:#1a1a2e}
+    .col-search input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+    .col-search .ic{position:absolute;right:28px;top:24px;color:#3b82f6;pointer-events:none}
+    .col-body{padding:12px 16px 16px;overflow-y:auto;flex:1;min-height:200px}
+    .col-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:13.5px;line-height:1.9}
+    .col-empty .ic{font-size:48px;display:block;margin-bottom:12px;opacity:.5}
+    .col-item{background:#fff;border:1px solid #e0e7ff;border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
+    .col-av{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
+    .col-info{flex:1;min-width:0}
+    .col-name{font-size:14.5px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:6px}
+    .col-fav{color:#f59e0b;font-size:14px}
+    .col-agency{font-size:12px;color:#64748b;margin-top:2px}
+    .col-phone{font-size:12px;color:#3b82f6;margin-top:3px;direction:ltr;text-align:right;font-family:monospace;font-weight:600}
+    .col-area{font-size:11px;color:#94a3b8;margin-top:2px}
+    .col-actions{display:flex;gap:6px;flex-direction:column}
+    .col-act{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+    .col-call{background:#dcfce7;color:#16a34a}
+    .col-sms{background:#dbeafe;color:#2563eb}
+    .col-more{background:#f1f5f9;color:#64748b;font-size:12px}
+    .col-add{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:10px;box-shadow:0 6px 18px rgba(59,130,246,.3)}
+    .col-form{padding:16px}
+    .col-field{margin-bottom:12px}
+    .col-lb{font-size:12.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px}
+    .col-lb .req{color:#ef4444}
+    .col-in{width:100%;padding:12px 14px;border:1.5px solid #e0e7ff;border-radius:12px;font-size:14px;font-family:inherit;background:#f8faff;outline:none;box-sizing:border-box;color:#1a1a2e}
+    .col-in:focus{border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+    .col-btns{display:flex;gap:8px;margin-top:8px}
+    .col-save{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(22,163,74,.3)}
+    .col-cancel{padding:14px 22px;border:none;border-radius:12px;background:#f1f5f9;color:#64748b;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+    .col-del{background:#fee2e2;color:#dc2626;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-right:auto}
+    .col-menu{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999999;display:flex;align-items:center;justify-content:center;padding:30px}
+    .col-menu-cd{background:#fff;border-radius:18px;padding:8px;min-width:220px;max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .col-menu-it{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;background:none;border:none;width:100%;font-family:inherit;font-size:14px;font-weight:600;color:#1e293b;cursor:pointer;text-align:right}
+    .col-menu-it.danger{color:#dc2626}
+    .col-menu-it .ic{font-size:18px;width:24px;text-align:center}
+    html.dark-mode .col-card{background:#1a1428}
+    html.dark-mode .col-search input{background:#1a1428;border-color:#2a1f3d;color:#e5e1f0}
+    html.dark-mode .col-item{background:#1a1428;border-color:#2a1f3d}
+    html.dark-mode .col-name{color:#e5e1f0}
+    html.dark-mode .col-in{background:#1a1428;border-color:#2a1f3d;color:#e5e1f0}
+    html.dark-mode .col-menu-cd{background:#1a1428}
+    html.dark-mode .col-menu-it{color:#e5e1f0}
+    html.dark-mode .col-del{background:#7f1d1d}
+    html.dark-mode .col-cancel{background:#2a1f3d;color:#94a3b8}
+  `;
+  document.head.appendChild(st);
+}
+
+const get = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { return []; } };
+const set = l => localStorage.setItem(KEY, JSON.stringify(l));
+
+function save(item) {
+  const list = get();
+  if (item.id) {
+    const i = list.findIndex(x => x.id === item.id);
+    if (i >= 0) list[i] = item; else list.push(item);
+  } else {
+    item.id = 'col_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    list.push(item);
+  }
+  set(list);
+}
+function del(id) { set(get().filter(x => x.id !== id)); }
+
+function openMenu(item, refresh) {
+  const m = document.createElement('div');
+  m.className = 'col-menu';
+  m.innerHTML = '<div class="col-menu-cd">' +
+    '<button class="col-menu-it" data-a="edit"><span class="ic">✏️</span> ویرایش</button>' +
+    '<button class="col-menu-it" data-a="fav"><span class="ic">' + (item.fav ? '⭐' : '☆') + '</span> ' + (item.fav ? 'حذف علاقه‌مندی' : 'افزودن به علاقه‌مندی') + '</button>' +
+    '<button class="col-menu-it" data-a="wa"><span class="ic">💬</span> واتساپ</button>' +
+    '<button class="col-menu-it danger" data-a="del"><span class="ic">🗑</span> حذف</button></div>';
+  document.body.appendChild(m);
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  m.querySelectorAll('button').forEach(b => {
+    b.onclick = () => {
+      const a = b.dataset.a;
+      m.remove();
+      if (a === 'edit') openForm(item, refresh);
+      else if (a === 'fav') { item.fav = !item.fav; save(item); refresh(); }
+      else if (a === 'del') { if (confirm('حذف بشه؟')) { del(item.id); refresh(); } }
+      else if (a === 'wa') {
+        const p = String(item.mobile || item.phone || '').replace(/\D/g, '');
+        if (!p) return alert('شماره نداره');
+        window.open('https://wa.me/' + (p.startsWith('0') ? '98' + p.slice(1) : p), '_blank');
+      }
+    };
+  });
+}
+
+function openForm(item, refresh) {
+  item = item || {};
+  const isEdit = !!item.id;
+  const ov = document.createElement('div');
+  ov.className = 'col-ov';
+  ov.innerHTML = '<div class="col-card"><div class="col-head"><div class="col-ttl">' + (isEdit ? '✏️ ویرایش همکار' : '➕ همکار جدید') + '</div><button class="col-close" id="colX">✕</button></div>' +
+    '<div class="col-form" style="overflow-y:auto">' +
+    '<div class="col-field"><label class="col-lb">نام و نام خانوادگی <span class="req">*</span></label><input class="col-in" id="colName" value="' + (item.name || '') + '" placeholder="مثلاً: آقای رضایی"></div>' +
+    '<div class="col-field"><label class="col-lb">نام آژانس / دفتر</label><input class="col-in" id="colAgency" value="' + (item.agency || '') + '" placeholder="مثلاً: املاک آرین"></div>' +
+    '<div class="col-field"><label class="col-lb">موبایل</label><input class="col-in" id="colMobile" type="tel" value="' + (item.mobile || '') + '" placeholder="۰۹۱۲۱۲۳۴۵۶۷"></div>' +
+    '<div class="col-field"><label class="col-lb">تلفن ثابت</label><input class="col-in" id="colPhone" type="tel" value="' + (item.phone || '') + '" placeholder="۰۴۴۱۲۳۴۵۶۷"></div>' +
+    '<div class="col-field"><label class="col-lb">منطقه کاری</label><input class="col-in" id="colArea" value="' + (item.area || '') + '" placeholder="مثلاً: ارومیه - منطقه ۱"></div>' +
+    '<div class="col-field"><label class="col-lb">تخصص</label><input class="col-in" id="colSpec" value="' + (item.spec || '') + '" placeholder="مثلاً: فروش، اجاره، زمین"></div>' +
+    '<div class="col-field"><label class="col-lb">یادداشت</label><textarea class="col-in" id="colNote" rows="3" placeholder="هر توضیحی...">' + (item.note || '') + '</textarea></div>' +
+    '<div class="col-btns">' + (isEdit ? '<button class="col-del" id="colDel">🗑 حذف</button>' : '') + '<button class="col-save" id="colSave">💾 ذخیره</button><button class="col-cancel" id="colCancel">لغو</button></div></div></div>';
+  document.body.appendChild(ov);
+  document.getElementById('colX').onclick = () => ov.remove();
+  document.getElementById('colCancel').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  if (isEdit) {
+    document.getElementById('colDel').onclick = () => {
+      if (confirm('این همکار حذف بشه؟')) { del(item.id); ov.remove(); refresh(); }
+    };
+  }
+  document.getElementById('colSave').onclick = () => {
+    const name = document.getElementById('colName').value.trim();
+    if (!name) { alert('نام رو وارد کن'); return; }
+    save({
+      id: item.id, name: name,
+      agency: document.getElementById('colAgency').value.trim(),
+      mobile: document.getElementById('colMobile').value.trim(),
+      phone: document.getElementById('colPhone').value.trim(),
+      area: document.getElementById('colArea').value.trim(),
+      spec: document.getElementById('colSpec').value.trim(),
+      note: document.getElementById('colNote').value.trim(),
+      fav: item.fav || false
+    });
+    ov.remove(); refresh();
+  };
+}
+
+function openPhonebook() {
+  const ov = document.createElement('div');
+  ov.className = 'col-ov';
+  ov.innerHTML = '<div class="col-card"><div class="col-head"><div class="col-ttl">📞 دفترچه همکاران</div><button class="col-close" id="colClose">✕</button></div>' +
+    '<div class="col-search"><span class="ic">🔍</span><input id="colSearch" placeholder="جستجوی نام، آژانس، شماره..."></div>' +
+    '<div class="col-body" id="colList"></div>' +
+    '<div style="padding:0 16px 16px"><button class="col-add" id="colAdd">➕ افزودن همکار جدید</button></div></div>';
+  document.body.appendChild(ov);
+  const list = document.getElementById('colList');
+  const search = document.getElementById('colSearch');
+  function render() {
+    const q = search.value.trim().toLowerCase();
+    let items = get();
+    if (q) items = items.filter(x => (x.name||'').toLowerCase().includes(q) || (x.agency||'').toLowerCase().includes(q) || (x.mobile||'').includes(q) || (x.phone||'').includes(q) || (x.area||'').toLowerCase().includes(q) || (x.spec||'').toLowerCase().includes(q));
+    items.sort((a,b) => { if (a.fav && !b.fav) return -1; if (!a.fav && b.fav) return 1; return (a.name||'').localeCompare(b.name||'', 'fa'); });
+    if (!items.length) { list.innerHTML = '<div class="col-empty"><span class="ic">📭</span>' + (q ? 'چیزی پیدا نشد' : 'هنوز همکاری ثبت نکردی<br>روی دکمه زیر بزن') + '</div>'; return; }
+    list.innerHTML = items.map(x => {
+      const initial = (x.name||'?').trim().charAt(0);
+      return '<div class="col-item" data-id="' + x.id + '"><div class="col-av">' + initial + '</div><div class="col-info"><div class="col-name">' + x.name + (x.fav ? ' <span class="col-fav">⭐</span>' : '') + '</div>' +
+        (x.agency ? '<div class="col-agency">🏢 ' + x.agency + '</div>' : '') +
+        ((x.mobile || x.phone) ? '<div class="col-phone">📱 ' + (x.mobile || x.phone) + '</div>' : '') +
+        (x.area ? '<div class="col-area">📍 ' + x.area + (x.spec ? ' • ' + x.spec : '') + '</div>' : '') + '</div>' +
+        '<div class="col-actions">' +
+        (x.mobile ? '<button class="col-act col-call" data-a="call" data-p="' + x.mobile + '">📞</button>' : (x.phone ? '<button class="col-act col-call" data-a="call" data-p="' + x.phone + '">📞</button>' : '')) +
+        ((x.mobile || x.phone) ? '<button class="col-act col-sms" data-a="sms" data-p="' + (x.mobile || x.phone) + '">💬</button>' : '') +
+        '<button class="col-act col-more" data-a="more">⋯</button></div></div>';
+    }).join('');
+    list.querySelectorAll('.col-item').forEach(el => {
+      const id = el.dataset.id;
+      const item = get().find(x => x.id === id);
+      if (!item) return;
+      el.querySelectorAll('button[data-a]').forEach(b => {
+        b.onclick = (e) => {
+          e.stopPropagation();
+          const a = b.dataset.a;
+          if (a === 'call') { const p = String(b.dataset.p || '').replace(/\D/g, ''); if (p) window.location.href = 'tel:' + p; }
+          else if (a === 'sms') { const p = String(b.dataset.p || '').replace(/\D/g, ''); if (p) window.location.href = 'sms:' + p; }
+          else if (a === 'more') openMenu(item, render);
+        };
+      });
+    });
+  }
+  search.oninput = render;
+  document.getElementById('colClose').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.getElementById('colAdd').onclick = () => openForm(null, render);
+  render();
+}
+
+function addFloat() {
+  if (document.getElementById('colFB')) return;
+  const b = document.createElement('button');
+  b.id = 'colFB'; b.className = 'col-btn'; b.type = 'button';
+  b.title = 'دفترچه همکاران'; b.textContent = '📞';
+  b.onclick = openPhonebook;
+  document.body.appendChild(b);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addFloat);
+else addFloat();
+setInterval(addFloat, 1500);
+})();
+    </script>
 </body>
                                                       </html>

@@ -962,17 +962,25 @@ function openPhonebook() {
   render();
 }
 
-function addFloat() {
-  if (document.getElementById('colFB')) return;
-  const b = document.createElement('button');
-  b.id = 'colFB'; b.className = 'col-btn'; b.type = 'button';
-  b.title = 'دفترچه همکاران'; b.textContent = '📞';
-  b.onclick = openPhonebook;
-  document.body.appendChild(b);
+  // اضافه کردن کارت همکاران به تب دستیار
+function addColleagueCard(){
+  const tabAI = document.getElementById('tab-ai');
+  if(!tabAI || document.getElementById('colCardBtn')) return;
+  const container = tabAI.querySelector('.container');
+  if(!container) return;
+  const firstFeature = container.querySelector('.feature');
+  if(!firstFeature) return;
+  const card = document.createElement('div');
+  card.id = 'colCardBtn';
+  card.className = 'feature';
+  card.style.cssText = 'background:linear-gradient(135deg,#0ea5e9,#3b82f6);color:#fff;border-radius:18px;padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:0 6px 20px rgba(14,165,233,.3);display:flex;align-items:center;gap:12px;';
+  card.innerHTML = '<div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:24px;">📞</div><div><div style="font-size:15px;font-weight:800;margin-bottom:3px;">دفترچه همکاران</div><div style="font-size:12px;opacity:.9;">مدیریت شماره همکاران املاک</div></div>';
+  card.onclick = openPhonebook;
+  firstFeature.parentNode.insertBefore(card, firstFeature);
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addFloat);
-else addFloat();
-setInterval(addFloat, 1500);
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addColleagueCard);
+else addColleagueCard();
+setInterval(addColleagueCard, 1500);
 })();
     </script>
 </body>

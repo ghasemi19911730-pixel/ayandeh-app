@@ -983,5 +983,213 @@ else addColleagueCard();
 setInterval(addColleagueCard, 1500);
 })();
     </script>
+    <script>
+(function(){
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const fa = s => String(s||'').replace(/\d/g, d => FA[d]);
+const fmt = n => { if(!n) return ''; const s = String(n).replace(/\D/g,''); return s.replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+
+if(!document.getElementById('print-css')){
+  const st = document.createElement('style');
+  st.id = 'print-css';
+  st.textContent = `
+    .print-open-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:14px;padding:13px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;margin-top:10px;box-shadow:0 4px 14px rgba(245,158,11,.3)}
+    .print-ov{position:fixed;inset:0;background:rgba(15,10,30,.72);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
+    .print-card{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+    .print-head{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+    .print-ttl{font-size:17px;font-weight:800}
+    .print-x{background:rgba(255,255,255,.2);border:none;width:34px;height:34px;border-radius:50%;color:#fff;font-size:18px;cursor:pointer}
+    .print-body{padding:14px;overflow-y:auto;flex:1}
+    .print-sec{font-size:13px;font-weight:800;color:#7c3aed;margin:14px 0 6px;padding-bottom:5px;border-bottom:1.5px solid #ede9fe;display:flex;justify-content:space-between;align-items:center}
+    .print-layouts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .print-lay{padding:10px 4px;border:2px solid #e0e7ff;background:#f8faff;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:#475569;cursor:pointer;text-align:center}
+    .print-lay.active{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border-color:transparent}
+    .print-fields{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+    .print-fld{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1.5px solid #e0e7ff;border-radius:10px;background:#f8faff;cursor:pointer;font-size:12.5px;font-weight:600;color:#334155}
+    .print-fld input{width:16px;height:16px;accent-color:#f59e0b;flex-shrink:0}
+    .print-list{max-height:220px;overflow-y:auto;border:1px solid #e0e7ff;border-radius:12px;padding:8px;background:#f8faff}
+    .print-item{display:flex;align-items:center;gap:10px;padding:9px;border-radius:8px;cursor:pointer;background:#fff;margin-bottom:5px;border:1px solid #eef2ff}
+    .print-item input{width:18px;height:18px;accent-color:#f59e0b}
+    .print-item-info{flex:1;min-width:0}
+    .print-item-name{font-size:13px;font-weight:700;color:#1e293b}
+    .print-item-sub{font-size:11px;color:#64748b;margin-top:2px}
+    .print-mini-btn{background:#f1f5f9;border:none;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit}
+    .print-actions{display:flex;gap:8px;padding:14px;border-top:1px solid #f0ecfb;flex-shrink:0}
+    .print-go{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer}
+    .print-cn{padding:14px 22px;border:none;border-radius:12px;background:#f1f5f9;color:#64748b;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+    #printArea{display:none}
+    @page { size: A4 portrait; margin: 6mm; }
+    @media print {
+      html, body { background:#fff !important; margin:0 !important; padding:0 !important; }
+      body * { visibility: hidden !important; }
+      #printArea, #printArea * { visibility: visible !important; }
+      #printArea { display: grid !important; position: absolute; top: 0; right: 0; left: 0; width: 198mm; gap: 3mm; direction: rtl; font-family: Vazirmatn, Tahoma, sans-serif; }
+      #printArea[data-layout="1"] { grid-template-columns: 1fr; grid-auto-rows: 285mm; }
+      #printArea[data-layout="2"] { grid-template-columns: 1fr; grid-auto-rows: 141mm; }
+      #printArea[data-layout="4"] { grid-template-columns: 1fr 1fr; grid-auto-rows: 141mm; }
+      #printArea[data-layout="6"] { grid-template-columns: 1fr 1fr; grid-auto-rows: 94mm; }
+      #printArea[data-layout="9"] { grid-template-columns: 1fr 1fr 1fr; grid-auto-rows: 94mm; }
+      #printArea[data-layout="12"] { grid-template-columns: 1fr 1fr 1fr; grid-auto-rows: 69mm; }
+      .pcard { border: 1.5px solid #333 !important; border-radius: 5px; padding: 4mm; box-sizing: border-box; background:#fff !important; color:#000 !important; overflow: hidden; page-break-inside: avoid; font-size: 11px; line-height: 1.55; }
+      #printArea[data-layout="1"] .pcard { font-size: 15px; padding: 8mm; }
+      #printArea[data-layout="2"] .pcard { font-size: 13px; padding: 6mm; }
+      #printArea[data-layout="6"] .pcard { font-size: 9.5px; padding: 3mm; line-height: 1.4; }
+      #printArea[data-layout="9"] .pcard { font-size: 8.5px; padding: 2.5mm; line-height: 1.35; }
+      #printArea[data-layout="12"] .pcard { font-size: 7.5px; padding: 2mm; line-height: 1.3; }
+      .pcard h3 { margin: 0 0 1.5mm; font-size: 1.2em; padding-bottom: 1mm; border-bottom: 1px solid #999; }
+      .prow { display: flex; margin-bottom: 0.6mm; }
+      .prow .k { color:#444; min-width: 18mm; font-weight: 700; font-size: .9em; }
+      .prow .v { color:#000; font-weight: 600; flex:1; }
+      .pdesc { margin-top: 1mm; padding-top: 1mm; border-top: 1px dashed #999; font-size: .9em; }
+    }
+  `;
+  document.head.appendChild(st);
+}
+
+function getFiles(){
+  try { return JSON.parse(localStorage.getItem('properties') || '[]'); } catch(e){ return []; }
+}
+
+function renderPrintCard(p, fields){
+  const labels = {title:'عنوان',code:'کد',role:'نقش',deal:'معامله',cat:'دسته',type:'نوع',area:'مساحت',rooms:'خواب',floor:'طبقه',year:'سال ساخت',nei:'محله',addr:'آدرس',price:'قیمت',rahn:'ودیعه',rent:'اجاره',feats:'امکانات',desc:'توضیحات',owner:'مالک',phone:'تماس'};
+  const row = (k,v) => (v && fields[k]) ? '<div class="prow"><span class="k">'+labels[k]+'</span><span class="v">'+v+'</span></div>' : '';
+
+  let title = '';
+  if (fields.title) {
+    const t = [p.cat, p.type].filter(Boolean).join(' - ') || 'فایل';
+    title = t + (fields.code && p.code ? ' — کد: ' + p.code : '');
+  } else if (fields.code && p.code) {
+    title = 'کد: ' + p.code;
+  }
+
+  const feats = [];
+  if (p.parking === 'دارد' || p.parking === true) feats.push('پارکینگ');
+  if (p.storage === 'دارد' || p.storage === true) feats.push('انباری');
+  if (p.balcony === 'دارد' || p.balcony === true) feats.push('بالکن');
+
+  let out = '<div class="pcard">';
+  if (title) out += '<h3>' + title + '</h3>';
+
+  if (fields.role && p.role) out += row('role', p.role);
+  if (fields.deal && p.deal) out += row('deal', p.deal);
+  if (fields.area && p.area) out += row('area', fa(p.area) + ' متر');
+  if (fields.rooms && p.rooms) out += row('rooms', fa(p.rooms) + ' خواب');
+  if (fields.floor && p.floor) out += row('floor', fa(p.floor));
+  if (fields.year && p.year) out += row('year', fa(p.year));
+  if (fields.nei && p.neighborhood) out += row('nei', p.neighborhood);
+  if (fields.addr && p.address) out += row('addr', p.address);
+  if (fields.price && p.price && !p.rahn && !p.rent) out += row('price', fa(fmt(p.price)) + ' تومان');
+  if (fields.rahn && p.rahn) out += row('rahn', fa(fmt(p.rahn)) + ' تومان');
+  if (fields.rent && p.rent) out += row('rent', fa(fmt(p.rent)) + ' تومان');
+  if (fields.feats && feats.length) out += row('feats', feats.join(' • '));
+  if (fields.owner && p.owner) out += row('owner', p.owner);
+  if (fields.phone && p.ownerPhone) out += row('phone', p.ownerPhone);
+  if (fields.desc && (p.desc || p.note)) out += '<div class="pdesc"><strong>توضیحات:</strong> ' + (p.desc || p.note) + '</div>';
+  out += '</div>';
+  return out;
+}
+
+function openPrint(){
+  const all = getFiles();
+  if (!all.length) { alert('فایلی برای پرینت وجود نداره'); return; }
+  let fields = { title:true, code:true, role:true, deal:true, area:true, rooms:true, floor:true, year:true, nei:true, addr:true, price:true, rahn:true, rent:true, feats:true, desc:false, owner:false, phone:false };
+  let layout = '2';
+  const ov = document.createElement('div');
+  ov.className = 'print-ov';
+  ov.innerHTML = '<div class="print-card">' +
+    '<div class="print-head"><div class="print-ttl">🖨 پرینت فایل‌ها</div><button class="print-x" id="pX">✕</button></div>' +
+    '<div class="print-body">' +
+      '<div class="print-sec">📄 چیدمان در هر A4</div>' +
+      '<div class="print-layouts">' +
+        '<button class="print-lay" data-lay="1">۱ تایی</button>' +
+        '<button class="print-lay active" data-lay="2">۲ تایی</button>' +
+        '<button class="print-lay" data-lay="4">۴ تایی</button>' +
+        '<button class="print-lay" data-lay="6">۶ تایی</button>' +
+        '<button class="print-lay" data-lay="9">۹ تایی</button>' +
+        '<button class="print-lay" data-lay="12">۱۲ تایی</button>' +
+      '</div>' +
+      '<div class="print-sec">✅ فیلدهای نمایش</div>' +
+      '<div class="print-fields">' +
+        '<label class="print-fld"><input type="checkbox" data-f="title" checked>عنوان</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="code" checked>کد فایل</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="role" checked>نقش</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="deal" checked>معامله</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="area" checked>مساحت</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="rooms" checked>خواب</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="floor" checked>طبقه</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="year" checked>سال ساخت</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="nei" checked>محله</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="addr" checked>آدرس</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="price" checked>قیمت</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="rahn" checked>ودیعه</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="rent" checked>اجاره</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="feats" checked>امکانات</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="desc">توضیحات</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="owner">مالک</label>' +
+        '<label class="print-fld"><input type="checkbox" data-f="phone">شماره مالک</label>' +
+      '</div>' +
+      '<div class="print-sec" style="display:flex;justify-content:space-between;align-items:center;"><span>📁 انتخاب فایل‌ها</span><span><button class="print-mini-btn" id="pSelAll">همه</button> <button class="print-mini-btn" id="pSelNone">هیچ</button></span></div>' +
+      '<div class="print-list" id="pList"></div>' +
+    '</div>' +
+    '<div class="print-actions"><button class="print-go" id="pGo">🖨 پرینت</button><button class="print-cn" id="pCn">لغو</button></div>' +
+  '</div>';
+  document.body.appendChild(ov);
+  const list = document.getElementById('pList');
+  list.innerHTML = all.map((p,i) => {
+    const t = [p.cat, p.type].filter(Boolean).join(' - ') || 'فایل';
+    const sub = [p.area ? fa(p.area)+' متر' : '', p.deal || '', p.address || ''].filter(Boolean).join(' • ');
+    return '<label class="print-item"><input type="checkbox" data-i="'+i+'" checked><div class="print-item-info"><div class="print-item-name">'+t+(p.code?' — '+p.code:'')+'</div><div class="print-item-sub">'+sub+'</div></div></label>';
+  }).join('');
+  ov.querySelectorAll('.print-lay').forEach(b => {
+    b.onclick = () => {
+      ov.querySelectorAll('.print-lay').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      layout = b.dataset.lay;
+    };
+  });
+  ov.querySelectorAll('.print-fld input').forEach(c => {
+    c.onchange = () => { fields[c.dataset.f] = c.checked; };
+  });
+  document.getElementById('pSelAll').onclick = () => list.querySelectorAll('input').forEach(c => c.checked = true);
+  document.getElementById('pSelNone').onclick = () => list.querySelectorAll('input').forEach(c => c.checked = false);
+  document.getElementById('pX').onclick = () => ov.remove();
+  document.getElementById('pCn').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.getElementById('pGo').onclick = () => {
+    const selected = [];
+    list.querySelectorAll('input:checked').forEach(c => selected.push(all[parseInt(c.dataset.i)]));
+    if (!selected.length) { alert('حداقل یه فایل انتخاب کن'); return; }
+    let area = document.getElementById('printArea');
+    if (!area) { area = document.createElement('div'); area.id = 'printArea'; document.body.appendChild(area); }
+    area.setAttribute('data-layout', layout);
+    area.innerHTML = selected.map(p => renderPrintCard(p, fields)).join('');
+    ov.remove();
+    setTimeout(() => { window.print(); }, 300);
+  };
+}
+
+function addPrintBtn(){
+  const tab = document.getElementById('tab-properties');
+  if (!tab || document.getElementById('printOpenBtn')) return;
+  const container = tab.querySelector('.container');
+  if (!container) return;
+  const btn = document.createElement('button');
+  btn.id = 'printOpenBtn';
+  btn.className = 'print-open-btn';
+  btn.type = 'button';
+  btn.innerHTML = '🖨 پرینت فایل‌ها';
+  btn.onclick = openPrint;
+  const filterBtn = container.querySelector('.btn-blue');
+  if (filterBtn && filterBtn.parentNode) {
+    filterBtn.parentNode.insertBefore(btn, filterBtn.nextSibling);
+  } else {
+    container.insertBefore(btn, container.firstChild);
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addPrintBtn);
+else addPrintBtn();
+setInterval(addPrintBtn, 1500);
+})();
+    </script>
 </body>
                                                       </html>

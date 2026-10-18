@@ -1398,5 +1398,201 @@ else addSettingBtn();
 setInterval(addSettingBtn, 2000);
 })();
     </script>
+    <script>
+(function(){
+const KEY = 'ayandeh_appointments';
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const fa = s => String(s||'').replace(/\d/g, d => FA[d]);
+
+if(!document.getElementById('appt-css')){
+  const st = document.createElement('style');
+  st.id = 'appt-css';
+  st.textContent = `
+    .appt-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;margin-top:10px;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+    .appt-sec{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:16px;padding:14px;margin:16px 14px 0;display:none}
+    .appt-sec.show{display:block}
+    .appt-h{font-size:14px;font-weight:800;color:#c2410c;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+    .appt-view-all{background:rgba(194,65,12,.1);border:none;color:#c2410c;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
+    .appt-i{background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;border-right:3px solid #f97316;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    .appt-time{background:#ffedd5;color:#c2410c;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;white-space:nowrap}
+    .appt-info{flex:1;min-width:0}
+    .appt-name{font-size:13.5px;font-weight:700;color:#1e293b}
+    .appt-sub{font-size:11.5px;color:#64748b;margin-top:2px}
+    .appt-del{background:#fee2e2;color:#dc2626;border:none;width:28px;height:28px;border-radius:50%;font-size:12px;cursor:pointer;flex-shrink:0}
+    .appt-ov{position:fixed;inset:0;background:rgba(15,10,30,.75);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
+    .appt-card{background:#fff;border-radius:20px;max-width:440px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;max-height:92vh;}
+    .appt-card-h{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+    .appt-card-t{font-size:16px;font-weight:800}
+    .appt-x{background:rgba(255,255,255,.2);border:none;width:32px;height:32px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer}
+    .appt-form{padding:16px;max-height:70vh;overflow-y:auto;flex:1;}
+    .appt-lbl{font-size:12.5px;font-weight:700;color:#475569;margin:10px 0 5px;display:block}
+    .appt-in{width:100%;padding:12px;border:1.5px solid #ede9fe;border-radius:12px;font-family:inherit;font-size:14px;background:#fafaff;color:#1e293b;outline:none;box-sizing:border-box}
+    .appt-in:focus{border-color:#f59e0b;background:#fff}
+    .appt-acts{display:flex;gap:8px;padding:16px;border-top:1px solid #f0ecfb;flex-shrink:0;}
+    .appt-save{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer}
+    .appt-cn{padding:14px 22px;border:none;border-radius:12px;background:#f1f5f9;color:#64748b;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+  `;
+  document.head.appendChild(st);
+}
+
+const getA = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } };
+const setA = l => localStorage.setItem(KEY, JSON.stringify(l));
+
+function openForm(){
+  const ov = document.createElement('div');
+  ov.className = 'appt-ov';
+  ov.innerHTML = '<div class="appt-card">' +
+    '<div class="appt-card-h"><div class="appt-card-t">📅 ثبت قرار جدید</div><button class="appt-x" id="aX">✕</button></div>' +
+    '<div class="appt-form">' +
+      '<label class="appt-lbl">👤 نام مشتری / عنوان</label>' +
+      '<input class="appt-in" id="aName" placeholder="مثلاً: آقای رضایی - بازدید آپارتمان">' +
+      '<label class="appt-lbl">📅 تاریخ</label>' +
+      '<input class="appt-in" type="date" id="aDate">' +
+      '<label class="appt-lbl">⏰ ساعت</label>' +
+      '<input class="appt-in" type="time" id="aTime">' +
+      '<label class="appt-lbl">📝 توضیحات (اختیاری)</label>' +
+      '<input class="appt-in" id="aNote" placeholder="مثلاً: برای اجاره، با مدارک بیاد">' +
+    '</div>' +
+    '<div class="appt-acts"><button class="appt-save" id="aSave">💾 ذخیره قرار</button><button class="appt-cn" id="aCn">لغو</button></div>' +
+  '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('aDate').valueAsDate = new Date();
+  document.getElementById('aTime').value = '10:00';
+  
+  document.getElementById('aX').onclick = () => ov.remove();
+  document.getElementById('aCn').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  
+  document.getElementById('aSave').onclick = () => {
+    const name = document.getElementById('aName').value.trim();
+    const date = document.getElementById('aDate').value;
+    const time = document.getElementById('aTime').value;
+    const note = document.getElementById('aNote').value.trim();
+    if (!name || !date) { alert('نام و تاریخ الزامی است'); return; }
+    const list = getA();
+    list.push({ id: Date.now(), name, date, time, note });
+    list.sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time));
+    setA(list);
+    ov.remove();
+    render();
+  };
+}
+
+function openAllApptsModal(){
+  const list = getA();
+  const today = new Date().toISOString().slice(0,10);
+  const upcoming = list.filter(a => a.date >= today);
+
+  const ov = document.createElement('div');
+  ov.className = 'appt-ov';
+  ov.innerHTML = `<div class="appt-card">
+    <div class="appt-card-h"><div class="appt-card-t">📅 همه قرارها (${fa(upcoming.length)} مورد)</div><button class="appt-x" id="aClose">✕</button></div>
+    <div class="appt-form" style="padding:12px;">
+      ${upcoming.length ? upcoming.map(a => {
+        const d = new Date(a.date);
+        const dateStr = a.date === today ? 'امروز' : (d.getDate() + '/' + (d.getMonth()+1));
+        return `
+        <div class="appt-i" style="margin-bottom:10px;">
+          <div class="appt-time">${dateStr} - ${a.time}</div>
+          <div class="appt-info">
+            <div class="appt-name">${a.name}</div>
+            ${a.note ? `<div class="appt-sub">${a.note}</div>` : ''}
+          </div>
+          <button class="appt-del" data-id="${a.id}">✕</button>
+        </div>`;
+      }).join('') : '<div style="text-align:center;color:#999;padding:30px;">قرار ملاقاتی در پیش نداری.</div>'}
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+
+  document.getElementById('aClose').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+
+  ov.querySelectorAll('.appt-del').forEach(b => {
+    b.onclick = () => {
+      if(confirm('حذف شود؟')) {
+        setA(getA().filter(x => x.id !== parseInt(b.dataset.id)));
+        ov.remove();
+        render();
+        openAllApptsModal(); // رفرش لیست
+      }
+    };
+  });
+}
+
+function render(){
+  const list = getA();
+  const today = new Date().toISOString().slice(0,10);
+  const upcoming = list.filter(a => a.date >= today); // فقط قرارهای امروز و آینده
+  
+  const tab = document.getElementById('tab-home');
+  if (!tab) return;
+  let sec = document.getElementById('apptSec');
+  if (!sec) {
+    sec = document.createElement('div');
+    sec.id = 'apptSec';
+    sec.className = 'appt-sec';
+    const container = tab.querySelector('.container');
+    const suggest = container.querySelector('.suggest');
+    if (suggest && suggest.nextSibling) container.insertBefore(sec, suggest.nextSibling);
+    else container.appendChild(sec);
+  }
+  
+  if (!upcoming.length) { sec.classList.remove('show'); return; }
+  
+  sec.classList.add('show');
+  let html = '<div class="appt-h"><span>📅 قرارهای پیش‌رو</span><button class="appt-view-all" id="apptViewAll">مشاهده همه</button></div>';
+  
+  // فقط ۳ قرار اول رو توی صفحه اصلی نشون بده
+  upcoming.slice(0, 3).forEach(a => {
+    const d = new Date(a.date);
+    const dateStr = a.date === today ? 'امروز' : (d.getDate() + '/' + (d.getMonth()+1));
+    html += `<div class="appt-i">
+      <div class="appt-time">${dateStr} - ${a.time||''}</div>
+      <div class="appt-info">
+        <div class="appt-name">${a.name}</div>
+        ${a.note ? `<div class="appt-sub">${a.note}</div>` : ''}
+      </div>
+      <button class="appt-del" data-id="${a.id}">✕</button>
+    </div>`;
+  });
+  sec.innerHTML = html;
+  
+  document.getElementById('apptViewAll').onclick = openAllApptsModal;
+  
+  sec.querySelectorAll('.appt-del').forEach(b => {
+    b.onclick = () => {
+      if(confirm('حذف شود؟')) {
+        setA(getA().filter(x => x.id !== parseInt(b.dataset.id)));
+        render();
+      }
+    };
+  });
+}
+
+function addBtn(){
+  const tab = document.getElementById('tab-home');
+  if (!tab || document.getElementById('apptMainBtn')) return;
+  const container = tab.querySelector('.container');
+  if (!container) return;
+  const btn = document.createElement('button');
+  btn.id = 'apptMainBtn'; btn.className = 'appt-btn'; btn.type = 'button';
+  btn.innerHTML = '📅 ثبت قرار و یادآوری';
+  btn.onclick = openForm;
+  
+  const stats = container.querySelector('.stats');
+  if (stats && stats.nextSibling) container.insertBefore(btn, stats.nextSibling);
+  else container.insertBefore(btn, container.firstChild);
+  
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addBtn(); render(); });
+else { addBtn(); render(); }
+setInterval(() => { addBtn(); render(); }, 2000);
+})();
+    </script>
 </body>
                                                       </html>

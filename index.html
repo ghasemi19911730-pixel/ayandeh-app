@@ -1298,5 +1298,105 @@ else addMainBtn();
 setInterval(addMainBtn, 1500);
 })();
     </script>
+    <script>
+(function(){
+if(!document.getElementById('settings-css')){
+  const st = document.createElement('style');
+  st.id = 'settings-css';
+  st.textContent = `
+    .set-btn{position:fixed;top:16px;left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;border:1.5px solid rgba(255,255,255,.35);font-size:20px;cursor:pointer;z-index:9998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .25s}
+    .set-btn:active{transform:scale(.92)}
+    .set-ov{position:fixed;inset:0;background:rgba(15,10,30,.75);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
+    .set-card{background:#fff;border-radius:20px;max-width:440px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+    .set-hd{background:linear-gradient(135deg,#475569,#1e293b);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+    .set-ttl{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+    .set-x{background:rgba(255,255,255,.2);border:none;width:32px;height:32px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer}
+    .set-body{padding:16px;overflow-y:auto;flex:1}
+    .set-grp{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px}
+    .set-grp-t{font-size:13.5px;font-weight:800;color:#334155;margin-bottom:10px;display:flex;justify-content:space-between;}
+    .set-val{color:#0ea5e9;background:#e0f2fe;padding:2px 8px;border-radius:6px;font-size:12px;}
+    .set-rng{width:100%;margin:8px 0;accent-color:#0ea5e9;direction:ltr;}
+    .set-ft{padding:14px;border-top:1px solid #f0ecfb;text-align:center}
+    .set-save{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(16,185,129,.3)}
+  `;
+  document.head.appendChild(st);
+}
+
+const getSet = () => { try { return JSON.parse(localStorage.getItem('ayandeh_settings') || '{}'); } catch(e){ return {}; } };
+const saveSet = (k, v) => { const s = getSet(); s[k] = v; localStorage.setItem('ayandeh_settings', JSON.stringify(s)); };
+
+function openSettings(){
+  const s = getSet();
+  const rentTh = s.rentTh || 60;
+  const saleTh = s.saleTh || 85;
+
+  const ov = document.createElement('div');
+  ov.className = 'set-ov';
+  ov.innerHTML = `<div class="set-card">
+    <div class="set-hd"><div class="set-ttl">⚙️ تنظیمات اپ</div><button class="set-x" id="sX">✕</button></div>
+    <div class="set-body">
+      <div class="set-grp">
+        <div class="set-grp-t"><span>🎯 درصد تطبیق (فروش)</span> <span class="set-val" id="sValSale">${saleTh}%</span></div>
+        <input type="range" class="set-rng" id="sSale" min="50" max="95" value="${saleTh}">
+        <div style="font-size:11px;color:#64748b;">هرچی بالاتر باشه، فقط فایل‌های دقیق‌تر پیشنهاد داده میشه.</div>
+      </div>
+      <div class="set-grp">
+        <div class="set-grp-t"><span>🔑 درصد تطبیق (اجاره)</span> <span class="set-val" id="sValRent">${rentTh}%</span></div>
+        <input type="range" class="set-rng" id="sRent" min="40" max="80" value="${rentTh}">
+        <div style="font-size:11px;color:#64748b;">برای اجاره، درصد پایین‌تر بهتره تا گزینه‌های بیشتری ببینی.</div>
+      </div>
+      <div class="set-grp" style="background:#f0fdf4;border-color:#bbf7d0;">
+        <div style="font-size:12px;color:#166534;line-height:1.7;">
+          <strong>💡 نکته:</strong> این تنظیمات فقط برای خودت ذخیره میشه. هر وقت خواستی می‌تونی از همین‌جا عوضشون کنی. دیگه نیازی به کد زدن نیست!
+        </div>
+      </div>
+    </div>
+    <div class="set-ft">
+      <button class="set-save" id="sSave">💾 ذخیره تنظیمات</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+
+  const sSale = document.getElementById('sSale');
+  const sRent = document.getElementById('sRent');
+  
+  sSale.oninput = () => { document.getElementById('sValSale').textContent = sSale.value + '%'; };
+  sRent.oninput = () => { document.getElementById('sValRent').textContent = sRent.value + '%'; };
+
+  document.getElementById('sX').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+
+  document.getElementById('sSave').onclick = () => {
+    saveSet('saleTh', parseInt(sSale.value));
+    saveSet('rentTh', parseInt(sRent.value));
+    ov.remove();
+    alert('✅ تنظیمات ذخیره شد!\nحالا اپ با درصدهای جدید کار می‌کنه.');
+    
+    // برای اینکه تغییرات فوری اعمال بشن، صفحه رو رفرش می‌کنیم
+    setTimeout(() => window.location.reload(), 500);
+  };
+}
+
+function addSettingBtn(){
+  if(document.getElementById('setMainBtn')) return;
+  const b = document.createElement('button');
+  b.id = 'setMainBtn'; b.className = 'set-btn'; b.type = 'button';
+  b.innerHTML = '⚙️';
+  b.title = 'تنظیمات اپ';
+  b.onclick = openSettings;
+  document.body.appendChild(b);
+  
+  // مخفی کردن دکمه ماه (چون تو تنظیمات حالت شب رو داریم، ولی فعلا نگهش می‌داریم)
+  setTimeout(() => {
+    const themeBtn = document.getElementById('btn-theme-toggle');
+    if(themeBtn) themeBtn.style.left = '66px'; // انتقال دکمه ماه به کنار دکمه تنظیمات
+  }, 1000);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addSettingBtn);
+else addSettingBtn();
+setInterval(addSettingBtn, 2000);
+})();
+    </script>
 </body>
                                                       </html>

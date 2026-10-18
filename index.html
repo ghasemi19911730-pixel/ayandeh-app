@@ -1404,21 +1404,42 @@ const KEY = 'ayandeh_appointments';
 const FA='۰۱۲۳۴۵۶۷۸۹';
 const fa = s => String(s||'').replace(/\d/g, d => FA[d]);
 
+function getTodayJalali(){
+  const d = new Date();
+  try {
+    return d.toLocaleDateString('fa-IR', {year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/[۰-۹]/g, x => FA.indexOf(x));
+  } catch(e) {
+    return '1403/01/01';
+  }
+}
+
 if(!document.getElementById('appt-css')){
   const st = document.createElement('style');
   st.id = 'appt-css';
   st.textContent = `
-    .appt-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;margin-top:10px;box-shadow:0 4px 12px rgba(245,158,11,.3)}
-    .appt-sec{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:16px;padding:14px;margin:16px 14px 0;display:none}
+    .appt-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;margin-top:10px;margin-bottom:12px;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+    .appt-sec{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:16px;padding:14px;margin:0 0 16px 0;display:none}
     .appt-sec.show{display:block}
     .appt-h{font-size:14px;font-weight:800;color:#c2410c;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
     .appt-view-all{background:rgba(194,65,12,.1);border:none;color:#c2410c;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
+    
     .appt-i{background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;border-right:3px solid #f97316;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-    .appt-time{background:#ffedd5;color:#c2410c;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;white-space:nowrap}
+    .appt-i.t-visit{border-right-color:#3b82f6;} .appt-i.t-contract{border-right-color:#10b981;} .appt-i.t-work{border-right-color:#8b5cf6;} .appt-i.t-personal{border-right-color:#64748b;}
+    
+    .appt-time{background:#ffedd5;color:#c2410c;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;white-space:nowrap;direction:ltr;}
     .appt-info{flex:1;min-width:0}
-    .appt-name{font-size:13.5px;font-weight:700;color:#1e293b}
+    .appt-name{font-size:13.5px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    
+    .appt-tag{font-size:9.5px; padding:2px 6px; border-radius:6px; font-weight:800;}
+    .tag-visit{background:#dbeafe;color:#1d4ed8;}
+    .tag-contract{background:#dcfce7;color:#15803d;}
+    .tag-work{background:#f3e8ff;color:#6b21a8;}
+    .tag-personal{background:#f1f5f9;color:#475569;}
+    .tag-normal{background:#ffedd5;color:#c2410c;}
+
     .appt-sub{font-size:11.5px;color:#64748b;margin-top:2px}
     .appt-del{background:#fee2e2;color:#dc2626;border:none;width:28px;height:28px;border-radius:50%;font-size:12px;cursor:pointer;flex-shrink:0}
+    
     .appt-ov{position:fixed;inset:0;background:rgba(15,10,30,.75);backdrop-filter:blur(6px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif}
     .appt-card{background:#fff;border-radius:20px;max-width:440px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;max-height:92vh;}
     .appt-card-h{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
@@ -1426,7 +1447,7 @@ if(!document.getElementById('appt-css')){
     .appt-x{background:rgba(255,255,255,.2);border:none;width:32px;height:32px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer}
     .appt-form{padding:16px;max-height:70vh;overflow-y:auto;flex:1;}
     .appt-lbl{font-size:12.5px;font-weight:700;color:#475569;margin:10px 0 5px;display:block}
-    .appt-in{width:100%;padding:12px;border:1.5px solid #ede9fe;border-radius:12px;font-family:inherit;font-size:14px;background:#fafaff;color:#1e293b;outline:none;box-sizing:border-box}
+    .appt-in{width:100%;padding:12px;border:1.5px solid #ede9fe;border-radius:12px;font-family:inherit;font-size:14px;background:#fafaff;color:#1e293b;outline:none;box-sizing:border-box;}
     .appt-in:focus{border-color:#f59e0b;background:#fff}
     .appt-acts{display:flex;gap:8px;padding:16px;border-top:1px solid #f0ecfb;flex-shrink:0;}
     .appt-save{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer}
@@ -1438,25 +1459,42 @@ if(!document.getElementById('appt-css')){
 const getA = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } };
 const setA = l => localStorage.setItem(KEY, JSON.stringify(l));
 
+function getTypeInfo(type){
+  if(type === 'بازدید ملک') return { cls: 't-visit', tag: 'tag-visit', icon: '🏠' };
+  if(type === 'عقد قرارداد') return { cls: 't-contract', tag: 'tag-contract', icon: '📝' };
+  if(type === 'کاری') return { cls: 't-work', tag: 'tag-work', icon: '💼' };
+  if(type === 'شخصی') return { cls: 't-personal', tag: 'tag-personal', icon: '👤' };
+  return { cls: '', tag: 'tag-normal', icon: '📅' }; // ردیفی/عادی
+}
+
 function openForm(){
   const ov = document.createElement('div');
   ov.className = 'appt-ov';
   ov.innerHTML = '<div class="appt-card">' +
     '<div class="appt-card-h"><div class="appt-card-t">📅 ثبت قرار جدید</div><button class="appt-x" id="aX">✕</button></div>' +
     '<div class="appt-form">' +
+      '<label class="appt-lbl">📌 نوع قرار</label>' +
+      '<select class="appt-in" id="aType" style="direction:rtl;">' +
+        '<option value="ردیفی">📅 ردیفی / عادی</option>' +
+        '<option value="بازدید ملک">🏠 بازدید ملک</option>' +
+        '<option value="عقد قرارداد">📝 عقد قرارداد</option>' +
+        '<option value="کاری">💼 کاری</option>' +
+        '<option value="شخصی">👤 شخصی</option>' +
+      '</select>' +
       '<label class="appt-lbl">👤 نام مشتری / عنوان</label>' +
-      '<input class="appt-in" id="aName" placeholder="مثلاً: آقای رضایی - بازدید آپارتمان">' +
-      '<label class="appt-lbl">📅 تاریخ</label>' +
-      '<input class="appt-in" type="date" id="aDate">' +
+      '<input class="appt-in" id="aName" placeholder="مثلاً: آقای رضایی">' +
+      '<label class="appt-lbl">📅 تاریخ (شمسی)</label>' +
+      '<input class="appt-in" type="text" id="aDate" placeholder="1403/07/26" style="direction:ltr;text-align:right;">' +
       '<label class="appt-lbl">⏰ ساعت</label>' +
       '<input class="appt-in" type="time" id="aTime">' +
       '<label class="appt-lbl">📝 توضیحات (اختیاری)</label>' +
-      '<input class="appt-in" id="aNote" placeholder="مثلاً: برای اجاره، با مدارک بیاد">' +
+      '<input class="appt-in" id="aNote" placeholder="مثلاً: با مدارک بیاد" style="direction:rtl;text-align:right;">' +
     '</div>' +
     '<div class="appt-acts"><button class="appt-save" id="aSave">💾 ذخیره قرار</button><button class="appt-cn" id="aCn">لغو</button></div>' +
   '</div>';
   document.body.appendChild(ov);
-  document.getElementById('aDate').valueAsDate = new Date();
+  
+  document.getElementById('aDate').value = getTodayJalali();
   document.getElementById('aTime').value = '10:00';
   
   document.getElementById('aX').onclick = () => ov.remove();
@@ -1464,14 +1502,23 @@ function openForm(){
   ov.onclick = e => { if (e.target === ov) ov.remove(); };
   
   document.getElementById('aSave').onclick = () => {
+    const type = document.getElementById('aType').value;
     const name = document.getElementById('aName').value.trim();
-    const date = document.getElementById('aDate').value;
+    const date = document.getElementById('aDate').value.trim();
     const time = document.getElementById('aTime').value;
     const note = document.getElementById('aNote').value.trim();
+    
     if (!name || !date) { alert('نام و تاریخ الزامی است'); return; }
+    
     const list = getA();
-    list.push({ id: Date.now(), name, date, time, note });
-    list.sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time));
+    list.push({ id: Date.now(), type, name, date, time, note });
+    
+    list.sort((a,b) => {
+      const dateCompare = String(a.date).localeCompare(String(b.date));
+      if(dateCompare !== 0) return dateCompare;
+      return String(a.time).localeCompare(String(b.time));
+    });
+    
     setA(list);
     ov.remove();
     render();
@@ -1480,8 +1527,8 @@ function openForm(){
 
 function openAllApptsModal(){
   const list = getA();
-  const today = new Date().toISOString().slice(0,10);
-  const upcoming = list.filter(a => a.date >= today);
+  const today = getTodayJalali();
+  const upcoming = list.filter(a => String(a.date) >= today);
 
   const ov = document.createElement('div');
   ov.className = 'appt-ov';
@@ -1489,13 +1536,13 @@ function openAllApptsModal(){
     <div class="appt-card-h"><div class="appt-card-t">📅 همه قرارها (${fa(upcoming.length)} مورد)</div><button class="appt-x" id="aClose">✕</button></div>
     <div class="appt-form" style="padding:12px;">
       ${upcoming.length ? upcoming.map(a => {
-        const d = new Date(a.date);
-        const dateStr = a.date === today ? 'امروز' : (d.getDate() + '/' + (d.getMonth()+1));
+        const dateStr = String(a.date) === today ? 'امروز' : a.date;
+        const tInfo = getTypeInfo(a.type);
         return `
-        <div class="appt-i" style="margin-bottom:10px;">
+        <div class="appt-i ${tInfo.cls}" style="margin-bottom:10px;">
           <div class="appt-time">${dateStr} - ${a.time}</div>
           <div class="appt-info">
-            <div class="appt-name">${a.name}</div>
+            <div class="appt-name">${tInfo.icon} ${a.name} <span class="appt-tag ${tInfo.tag}">${a.type||'ردیفی'}</span></div>
             ${a.note ? `<div class="appt-sub">${a.note}</div>` : ''}
           </div>
           <button class="appt-del" data-id="${a.id}">✕</button>
@@ -1514,7 +1561,7 @@ function openAllApptsModal(){
         setA(getA().filter(x => x.id !== parseInt(b.dataset.id)));
         ov.remove();
         render();
-        openAllApptsModal(); // رفرش لیست
+        openAllApptsModal();
       }
     };
   });
@@ -1522,20 +1569,21 @@ function openAllApptsModal(){
 
 function render(){
   const list = getA();
-  const today = new Date().toISOString().slice(0,10);
-  const upcoming = list.filter(a => a.date >= today); // فقط قرارهای امروز و آینده
+  const today = getTodayJalali();
+  const upcoming = list.filter(a => String(a.date) >= today); 
   
-  const tab = document.getElementById('tab-home');
+  // تغییر ۱: هدف رو تب دستیار (ai) می‌کنیم
+  const tab = document.getElementById('tab-ai');
   if (!tab) return;
   let sec = document.getElementById('apptSec');
+  
   if (!sec) {
     sec = document.createElement('div');
     sec.id = 'apptSec';
     sec.className = 'appt-sec';
     const container = tab.querySelector('.container');
-    const suggest = container.querySelector('.suggest');
-    if (suggest && suggest.nextSibling) container.insertBefore(sec, suggest.nextSibling);
-    else container.appendChild(sec);
+    // درج در بالای تب دستیار
+    container.insertBefore(sec, container.firstChild);
   }
   
   if (!upcoming.length) { sec.classList.remove('show'); return; }
@@ -1543,14 +1591,13 @@ function render(){
   sec.classList.add('show');
   let html = '<div class="appt-h"><span>📅 قرارهای پیش‌رو</span><button class="appt-view-all" id="apptViewAll">مشاهده همه</button></div>';
   
-  // فقط ۳ قرار اول رو توی صفحه اصلی نشون بده
   upcoming.slice(0, 3).forEach(a => {
-    const d = new Date(a.date);
-    const dateStr = a.date === today ? 'امروز' : (d.getDate() + '/' + (d.getMonth()+1));
-    html += `<div class="appt-i">
+    const dateStr = String(a.date) === today ? 'امروز' : a.date;
+    const tInfo = getTypeInfo(a.type);
+    html += `<div class="appt-i ${tInfo.cls}">
       <div class="appt-time">${dateStr} - ${a.time||''}</div>
       <div class="appt-info">
-        <div class="appt-name">${a.name}</div>
+        <div class="appt-name">${tInfo.icon} ${a.name} <span class="appt-tag ${tInfo.tag}">${a.type||'ردیفی'}</span></div>
         ${a.note ? `<div class="appt-sub">${a.note}</div>` : ''}
       </div>
       <button class="appt-del" data-id="${a.id}">✕</button>
@@ -1571,7 +1618,8 @@ function render(){
 }
 
 function addBtn(){
-  const tab = document.getElementById('tab-home');
+  // تغییر ۲: دکمه هم میره توی تب دستیار
+  const tab = document.getElementById('tab-ai');
   if (!tab || document.getElementById('apptMainBtn')) return;
   const container = tab.querySelector('.container');
   if (!container) return;
@@ -1580,13 +1628,8 @@ function addBtn(){
   btn.innerHTML = '📅 ثبت قرار و یادآوری';
   btn.onclick = openForm;
   
-  const stats = container.querySelector('.stats');
-  if (stats && stats.nextSibling) container.insertBefore(btn, stats.nextSibling);
-  else container.insertBefore(btn, container.firstChild);
-  
-  if (Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
+  // دکمه رو بذار بالای همه چیز توی تب دستیار
+  container.insertBefore(btn, container.firstChild);
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addBtn(); render(); });
@@ -1594,5 +1637,6 @@ else { addBtn(); render(); }
 setInterval(() => { addBtn(); render(); }, 2000);
 })();
     </script>
+    
 </body>
                                                       </html>

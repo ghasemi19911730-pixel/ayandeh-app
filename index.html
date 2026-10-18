@@ -1637,6 +1637,134 @@ else { addBtn(); render(); }
 setInterval(() => { addBtn(); render(); }, 2000);
 })();
     </script>
+    <style>
+/* =========================================
+   استایل حرفه‌ای (ارتقای ظاهری)
+   ========================================= */
+
+/* ۱. شیشه‌ای کردن هدر و کوتاه‌تر کردنش */
+.header {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(168, 85, 247, 0.9)) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    padding: 14px 18px !important; /* کوتاه‌تر شد */
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+    font-size: 18px !important;
+    letter-spacing: 0.5px;
+}
+
+/* ۲. فونت و خوانایی بهتر در کارت‌ها */
+.greeting {
+    font-size: 20px !important;
+    margin-top: 12px !important;
+}
+.subtitle {
+    font-size: 12.5px !important;
+    opacity: 0.8;
+}
+
+/* ۳. نرم‌تر و شیک‌تر کردن کارت‌های آمار (خانه) */
+.stat {
+    border-radius: 20px !important;
+    padding: 16px 10px !important;
+    transition: all 0.25s ease !important;
+    border: 1px solid rgba(124, 58, 237, 0.08) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+}
+.stat:active {
+    transform: scale(0.95) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+.stat-num {
+    font-size: 22px !important;
+    font-weight: 900 !important;
+}
+.stat-label {
+    font-size: 11px !important;
+    color: #6b7280 !important;
+    font-weight: 600 !important;
+}
+
+/* ۴. بهبود کارت پیشنهاد هوشمند */
+.suggest {
+    border-radius: 20px !important;
+    padding: 18px !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.05) !important;
+    border: 1px solid rgba(124, 58, 237, 0.1) !important;
+}
+.suggest-title {
+    font-size: 15px !important;
+}
+
+/* ۵. شیک‌تر کردن نوار پایین (تب‌ها) */
+.nav {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid rgba(0,0,0,0.05) !important;
+    padding-bottom: 12px !important;
+}
+.nav button {
+    transition: all 0.2s ease !important;
+}
+.nav button.active {
+    transform: translateY(-3px) !important;
+}
+.nav button.active .icon {
+    transform: scale(1.2) !important;
+    filter: drop-shadow(0 4px 6px rgba(124,58,237,0.3));
+}
+
+/* ۶. نظم دادن به دکمه‌های شناور (تنظیمات و ماه) */
+.set-btn, .btn-theme {
+    top: auto !important;
+    bottom: 120px !important; /* میانگین ارتفاع بالای نوار پایین */
+    width: 44px !important;
+    height: 44px !important;
+    background: #ffffff !important;
+    color: #7c3aed !important;
+    border: 1px solid rgba(124, 58, 237, 0.15) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+.set-btn {
+    left: 16px !important;
+}
+.btn-theme {
+    left: 70px !important;
+}
+
+/* ۷. استایل حالت شب (Dark Mode) برای موارد بالا */
+html.dark-mode .nav {
+    background: rgba(26, 20, 40, 0.95) !important;
+    border-top-color: rgba(255,255,255,0.05) !important;
+}
+html.dark-mode .stat {
+    background: #1a1428 !important;
+    border-color: rgba(255,255,255,0.05) !important;
+}
+html.dark-mode .stat-label {
+    color: #9ca3af !important;
+}
+html.dark-mode .set-btn, html.dark-mode .btn-theme {
+    background: #1a1428 !important;
+    color: #d4c5f9 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ۸. لمس نهایی: انیمیشن‌های نرم */
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.card, .stat, .suggest {
+    animation: slideInUp 0.4s ease-out forwards;
+}
+    </style>
     
 </body>
                                                       </html>

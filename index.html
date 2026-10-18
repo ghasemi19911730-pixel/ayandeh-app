@@ -1639,102 +1639,198 @@ setInterval(() => { addBtn(); render(); }, 2000);
     </script>
     <style>
 /* =========================================
-   استایل فوق تمیز و مینیمال (سبک iOS)
+   WORLD-CLASS UI OVERHAUL (Modern Fintech / iOS Style)
    ========================================= */
 
-/* ۱. پس‌زمینه خاکستری روشن و آرامش‌بخش */
-body {
-    background: #f2f2f7 !important;
-    background-attachment: fixed !important;
+:root {
+    --bg-color: #F4F6F8;
+    --card-bg: #FFFFFF;
+    --primary: #6D28D9;
+    --primary-light: #EDE9FE;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+    --shadow-float: 0 20px 40px -10px rgba(109, 40, 217, 0.15);
+    --radius-lg: 24px;
+    --radius-md: 16px;
 }
 
-/* ۲. هدر سفید و شیشه‌ای (متن بنفش) */
+/* ۱. پس‌زمینه و فونت پایه */
+body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    font-family: 'Vazirmatn', sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ۲. هدر مینیمال و شناور */
 .header {
-    background: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(244, 246, 248, 0.85) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    padding: 16px 18px !important;
-    box-shadow: 0 1px 0px rgba(0, 0, 0, 0.05) !important;
-    border-bottom: 1px solid #e5e5ea !important;
+    border-bottom: none !important;
+    padding: 16px 20px !important;
+    box-shadow: none !important;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 .header h1 {
-    color: #7c3aed !important;
-    font-size: 20px !important;
+    color: var(--text-main) !important;
+    font-size: 22px !important;
     font-weight: 800 !important;
+    letter-spacing: -0.5px;
 }
 
-/* ۳. کارت هدف: سفید، تمیز، با سایه نرم */
+/* ۳. متن خوش‌آمدگویی */
+.greeting {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin-top: 16px !important;
+}
+.subtitle {
+    color: var(--text-muted) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* ۴. کارت هدف (Hero) با گرادیانت فوق‌العاده */
 .hero {
-    background: #ffffff !important;
-    border-radius: 20px !important;
-    padding: 20px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #D946EF 100%) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 24px !important;
     border: none !important;
+    box-shadow: var(--shadow-float) !important;
+    color: white !important;
+    position: relative;
+    overflow: hidden;
 }
-.hero-text h2 { color: #1c1c1e !important; }
-.hero-text p { color: #8e8e93 !important; }
+.hero::after {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+.hero-text h2 { color: #fff !important; font-weight: 800 !important; font-size: 18px !important; }
+.hero-text p { color: #E9D5FF !important; font-weight: 500 !important; }
 .circle {
-    background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
-    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    box-shadow: none !important;
 }
+.circle span { font-size: 22px !important; font-weight: 900 !important; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
 
-/* ۴. کارت‌های آمار: سفید و مینیمال */
+/* ۵. کارت‌های آمار (آیکون‌های بزرگ، اعداد درشت) */
+.stats { gap: 12px !important; }
 .stat {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 16px 8px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    background: var(--card-bg) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 20px 12px !important;
     border: none !important;
+    box-shadow: var(--shadow-soft) !important;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.stat:active { transform: scale(0.96) !important; }
-.stat-num { color: #1c1c1e !important; font-size: 22px !important; font-weight: 800 !important; }
-.stat-label { color: #8e8e93 !important; font-size: 11px !important; }
+.stat:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+.stat .stat-icon {
+    width: 48px !important; height: 48px !important;
+    font-size: 24px !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+    display: flex; align-items: center; justify-content: center;
+}
+.stat-num {
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    color: var(--text-main) !important;
+    letter-spacing: -1px;
+}
+.stat-label {
+    font-size: 12px !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    margin-top: 4px;
+}
 
-/* ۵. کارت پیشنهاد هوشمند */
+/* ۶. کارت پیشنهاد هوشمند (با خط رنگی کناری) */
 .suggest {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 18px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    background: var(--card-bg) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 20px !important;
     border: none !important;
+    box-shadow: var(--shadow-soft) !important;
+    position: relative;
+    border-right: 4px solid var(--primary) !important;
+}
+.suggest-title {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin-bottom: 8px;
+}
+#suggest-text {
+    font-size: 14px !important;
+    color: var(--text-muted) !important;
+    line-height: 1.6;
 }
 
-/* ۶. نوار پایین (منو) شیشه‌ای و تمیز */
+/* ۷. نوار پایین (مثل اپل، شیشه‌ای و شناور) */
 .nav {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    border-top: 1px solid #e5e5ea !important;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.02) !important;
-    padding-bottom: 12px !important;
+    border-top: none !important;
+    border-radius: 28px 28px 0 0 !important;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.05) !important;
+    padding: 12px 10px 20px !important;
+}
+.nav button {
+    color: #9CA3AF !important;
+    transition: all 0.3s ease !important;
+}
+.nav button.active {
+    color: var(--primary) !important;
+    transform: translateY(-4px) !important;
+}
+.nav button.active .icon {
+    transform: scale(1.2) !important;
+    filter: drop-shadow(0 8px 12px rgba(109, 40, 217, 0.3)) !important;
 }
 
-/* ۷. جابجایی دکمه‌های شناور به پایین (تا جلوی دست و چشم نباشن) */
+/* ۸. دکمه‌های شناور (تنظیمات و ماه) - مخفی کردن برای تمیزی بیشتر */
 .set-btn, .btn-theme {
-    top: auto !important;
-    bottom: 90px !important; /* بالای منوی پایین */
-    width: 44px !important;
-    height: 44px !important;
-    background: #ffffff !important;
-    color: #7c3aed !important;
-    border: 1px solid #e5e5ea !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
+    top: 16px !important;
+    bottom: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: #fff !important;
+    color: var(--primary) !important;
+    border: none !important;
+    box-shadow: var(--shadow-soft) !important;
+    border-radius: 50% !important;
+    z-index: 101;
 }
-.set-btn { left: 16px !important; }
-.btn-theme { left: 70px !important; }
+.set-btn { right: 20px !important; left: auto !important; } /* انتقال به راست */
+.btn-theme { right: 70px !important; left: auto !important; } /* انتقال به راست */
 
-/* ۸. استایل حالت شب (Dark Mode) */
-html.dark-mode body { background: #000000 !important; }
-html.dark-mode .header { background: rgba(28, 28, 30, 0.85) !important; border-bottom-color: #38383a !important; }
-html.dark-mode .header h1 { color: #d4c5f9 !important; }
-html.dark-mode .hero, html.dark-mode .stat, html.dark-mode .suggest { background: #1c1c1e !important; box-shadow: none !important; }
-html.dark-mode .hero-text h2, html.dark-mode .stat-num { color: #ffffff !important; }
-html.dark-mode .hero-text p, html.dark-mode .stat-label { color: #8e8e93 !important; }
-html.dark-mode .nav { background: rgba(28, 28, 30, 0.95) !important; border-top-color: #38383a !important; }
-html.dark-mode .set-btn, html.dark-mode .btn-theme { background: #1c1c1e !important; color: #d4c5f9 !important; border-color: #38383a !important; }
+/* ۹. حالت شب (Dark Mode) هماهنگ */
+html.dark-mode {
+    --bg-color: #0B0F19;
+    --card-bg: #1A1F2E;
+    --text-main: #F9FAFB;
+    --text-muted: #9CA3AF;
+    --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.5);
+}
+html.dark-mode body { background-color: var(--bg-color) !important; }
+html.dark-mode .header { background: rgba(11, 15, 25, 0.85) !important; }
+html.dark-mode .header h1 { color: var(--text-main) !important; }
+html.dark-mode .nav { background: rgba(26, 31, 46, 0.9) !important; }
+html.dark-mode .stat, html.dark-mode .suggest { background: var(--card-bg) !important; }
+html.dark-mode .set-btn, html.dark-mode .btn-theme { background: var(--card-bg) !important; color: #A78BFA !important; }
     </style>
     
 </body>

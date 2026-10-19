@@ -2230,6 +2230,180 @@ html.dark-mode .card .price {
     color: #34D399 !important; /* سبز روشن برای حالت شب */
 }
     </style>
+    <style>
+/* =========================================
+   بازطراحی کامل فرم‌ها و پنجره‌های بازشو (Modern UI)
+   ========================================= */
+
+/* ۱. پس‌زمینه پنجره‌ها (مودال‌ها) */
+.modal {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* ۲. بدنه اصلی پنجره */
+.modal-content {
+    background: #ffffff !important;
+    border-radius: 24px !important;
+    padding: 0 !important; /* پدینگ رو از داخل هندل میکنیم */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh !important;
+}
+
+/* ۳. هدر پنجره (چسبیده به بالا) */
+.modal-header {
+    background: #ffffff !important;
+    padding: 20px 24px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+.modal-title {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+}
+.modal-close {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border-radius: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-weight: bold !important;
+}
+
+/* ۴. کادرهای ورودی (مدرن و شبیه اپل) */
+.field {
+    padding: 0 24px !important;
+    margin-bottom: 16px !important;
+}
+.field-label {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    margin-bottom: 8px !important;
+    margin-top: 4px !important;
+    display: block !important;
+}
+input[type=text], input[type=number], input[type=tel], input[type=date], select, textarea {
+    width: 100% !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    font-size: 14.5px !important;
+    font-family: inherit !important;
+    color: #1e293b !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+}
+input:focus, select:focus, textarea:focus {
+    background: #ffffff !important;
+    border-color: #0F766E !important;
+    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1) !important;
+}
+
+/* ۵. دکمه‌های انتخابی (Chips) */
+.chips {
+    padding: 0 24px !important;
+    gap: 8px !important;
+}
+.chip {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 10px 16px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    transition: all 0.2s ease !important;
+}
+.chip.active {
+    background: #0F766E !important;
+    border-color: #0F766E !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(15, 118, 110, 0.2) !important;
+}
+
+/* ۶. مرحله‌ها (۱، ۲، ۳...) */
+.step {
+    padding: 0 24px !important;
+    margin-bottom: 16px !important;
+}
+.step span {
+    background: #f8fafc !important;
+    color: #94a3b8 !important;
+    border: 1px solid #e2e8f0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-weight: 800 !important;
+}
+.step-h {
+    font-size: 15px !important;
+    color: #1e293b !important;
+    font-weight: 800 !important;
+}
+
+/* ۷. دکمه‌های پایین فرم (ذخیره و انصراف) */
+.modal-content > div:last-child:not(.modal-header) {
+    padding: 16px 24px 24px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #f1f5f9 !important;
+    display: flex !important;
+    gap: 12px !important;
+}
+button.btn-primary, .btn-blue {
+    background: #0F766E !important;
+    color: #ffffff !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25) !important;
+    flex: 1 !important;
+    border: none !important;
+}
+button.btn-cancel {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border-radius: 14px !important;
+    padding: 16px 24px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+/* ۸. استایل حالت شب (Dark Mode) */
+html.dark-mode .modal-content,
+html.dark-mode .modal-header,
+html.dark-mode .modal-content > div:last-child:not(.modal-header) {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+html.dark-mode .modal-title,
+html.dark-mode .field-label,
+html.dark-mode .step-h {
+    color: #f8fafc !important;
+}
+html.dark-mode input, html.dark-mode select, html.dark-mode textarea,
+html.dark-mode .chip, html.dark-mode .step span {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+html.dark-mode .modal-close {
+    background: #334155 !important;
+    color: #cbd5e1 !important;
+}
+    </style>
     
 </body>
                                                       </html>

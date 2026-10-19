@@ -1,0 +1,20 @@
+{
+  "name": "آینده‌ساز - CRM املاک",
+  "short_name": "آینده‌ساز",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F4F6F8",
+  "theme_color": "#0F766E",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=آینده‌ساز&background=0F766E&color=fff&size=192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=آینده‌ساز&background=0F766E&color=fff&size=512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

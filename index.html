@@ -2072,6 +2072,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 </script>
+    <style>
+/* اصلاح نهایی دایره هدف (حذف حاشیه‌ها و مربع‌های مزاحم) */
+.hero .circle {
+    background: #0F766E !important; /* سبز یکدست */
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.4) !important;
+    overflow: hidden !important; /* هر چیز اضافی رو می‌بره */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.hero .circle span, .hero .circle * {
+    background: transparent !important; /* حذف کامل پس‌زمینه سفید یا بنفش */
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+}
+    </style>
     
 </body>
                                                       </html>

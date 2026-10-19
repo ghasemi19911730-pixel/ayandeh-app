@@ -2482,6 +2482,50 @@ html.dark-mode #sms-queue-body textarea {
     color: #f8fafc !important;
 }
     </style>
+    <style>
+/* =========================================
+   تعمیر اسکرول در همه پنجره‌ها (Modals)
+   ========================================= */
+
+/* ۱. جلوگیری از اسکرول شدن صفحه پشتی */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+/* ۲. اجازه اسکرول به خود پنجره‌ها */
+.modal {
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+/* ۳. تنظیم ارتفاع پنجره‌ها برای اسکرول درست */
+.modal-content {
+    max-height: 88vh !important; /* پنجره از صفحه گوشی بیرون نزنه */
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+/* ۴. تنظیم اختصاصی پنجره صف پیامک‌ها */
+#modal-sms-queue .modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important; /* اسکرول رو از بدنه اصلی می‌گیریم */
+    padding: 0 !important;
+}
+#modal-sms-queue .modal-header {
+    flex-shrink: 0 !important; /* هدر ثابت بمونه */
+}
+#sms-queue-body {
+    overflow-y: auto !important; /* فقط لیست پیامک‌ها اسکرول بشه */
+    flex: 1 !important;
+    padding: 16px !important;
+}
+
+/* ۵. اصلاح حالت شب (Dark Mode) */
+html.dark-mode .modal {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+    </style>
     
 </body>
                                                       </html>

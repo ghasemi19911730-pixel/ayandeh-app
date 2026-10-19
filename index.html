@@ -2660,6 +2660,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
     </script>
+    <script>
+// سیم‌کشی تنظیمات به موتور تطبیق اپ
+document.addEventListener('DOMContentLoaded', function() {
+    // هر ۱ ثانیه چک میکنه (چون ممکنه اسکریپت اصلی دیرتر لود بشه)
+    setInterval(() => {
+        try {
+            const settings = JSON.parse(localStorage.getItem('ayandeh_settings') || '{}');
+            const saleTh = settings.saleTh || 85; // پیش‌فرض 85
+            const rentTh = settings.rentTh || 60; // پیش‌فرض 60
+
+            // پیدا کردن متغیرها یا توابع تطبیق در اپ اصلی (app.js)
+            // این کار باعث میشه اپ اصلی از این به بعد با درصدهای جدید کار کنه
+            if (window.state) {
+                window.state.thresholdSale = saleTh;
+                window.state.thresholdRent = rentTh;
+            }
+            
+            // اگر اپ از متغیرهای سراسری استفاده می‌کنه:
+            window.MATCH_THRESHOLD_SALE = saleTh;
+            window.MATCH_THRESHOLD_RENT = rentTh;
+
+        } catch(e) {}
+    }, 1000);
+});
+    </script>
     
 </body>
                                                       </html>

@@ -2404,6 +2404,84 @@ html.dark-mode .modal-close {
     color: #cbd5e1 !important;
 }
     </style>
+    <style>
+/* =========================================
+   تعمیر به‌هم‌ریختگی پنجره صف پیامک‌ها
+   ========================================= */
+
+/* برگرداندن ساختار عادی به پنجره صف پیامک */
+#modal-sms-queue .modal-content {
+    display: block !important; /* لغو حالت ستونی که خرابش کرده بود */
+    padding: 16px !important;
+}
+
+#sms-queue-body {
+    display: flex !important;
+    flex-direction: column !important; /* کارت‌ها رو زیر هم میچینه */
+    gap: 16px !important;
+}
+
+/* اصلاح کارت‌های پیامک (که له شدن) */
+#sms-queue-body > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 16px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* اصلاح کادر متنی (Textarea) داخل پیامک */
+#sms-queue-body textarea {
+    width: 100% !important;
+    min-height: 120px !important;
+    height: auto !important;
+    white-space: pre-wrap !important; /* برگرداندن متن به حالت افقی */
+    word-wrap: break-word !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    font-size: 13px !important;
+    line-height: 1.8 !important;
+    resize: vertical !important;
+}
+
+/* اصلاح دکمه‌های ارسال، حذف و ویرایش */
+#sms-queue-body button {
+    flex: 1 !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    margin-top: 4px !important;
+}
+
+/* چیدن دکمه‌ها در یک ردیف */
+#sms-queue-body > div > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+/* استایل حالت شب (Dark Mode) */
+html.dark-mode #sms-queue-body > div {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+html.dark-mode #sms-queue-body textarea {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+    </style>
     
 </body>
                                                       </html>

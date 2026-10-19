@@ -2641,6 +2641,25 @@ html.dark-mode #detail-body th {
     border-bottom-color: #334155 !important;
 }
     </style>
+    <script>
+// کد جادویی برای پاکسازی خودکار استایل‌های خرابکار
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const styles = document.querySelectorAll('style');
+        styles.forEach(style => {
+            const content = style.innerHTML;
+            if (content.includes('بازطراحی کامل فرم‌ها') || 
+                content.includes('تعمیر به‌هم‌ریختگی پنجره صف پیامک‌ها') ||
+                content.includes('تعمیر اسکرول در همه پنجره‌ها') ||
+                content.includes('تعمیر جدول جزئیات فایل') ||
+                content.includes('برگرداندن پنجره جزئیات به حالت اول') ||
+                content.includes('بازطراحی پنجره جزئیات')) {
+                style.remove(); // حذف خودکار کدهای خراب
+            }
+        });
+    }, 500);
+});
+    </script>
     
 </body>
                                                       </html>

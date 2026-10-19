@@ -2535,6 +2535,46 @@ html.dark-mode .modal {
     });
   }
 </script>
+    <style>
+/* =========================================
+   تعمیر جدول جزئیات فایل (برگرداندن حالت افقی)
+   ========================================= */
+
+/* غیرفعال کردن حالت فرم برای پنجره جزئیات */
+#modal-detail .modal-content {
+    display: block !important; 
+    padding: 20px !important;
+}
+
+/* دادن فضای کافی به بدنه جدول */
+#detail-body {
+    width: 100% !important;
+    overflow-x: auto !important; 
+    padding-bottom: 20px !important;
+}
+
+/* اجازه ندادن به ستون‌ها که له بشن */
+#detail-body table, #detail-body .table {
+    width: 100% !important;
+    min-width: 400px !important; 
+    border-collapse: collapse !important;
+}
+
+/* برگرداندن متن‌ها به حالت افقی */
+#detail-body th, #detail-body td, #detail-body div, #detail-body span {
+    white-space: normal !important; 
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    padding: 10px !important;
+    text-align: right !important;
+    vertical-align: middle !important;
+}
+
+/* استایل حالت شب */
+html.dark-mode #modal-detail .modal-content {
+    background: #1e293b !important;
+}
+    </style>
     
 </body>
                                                       </html>

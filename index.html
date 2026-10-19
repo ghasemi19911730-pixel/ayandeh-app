@@ -2039,6 +2039,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 800); 
 });
 </script>
+    <style>
+/* ۱. اصلاح دایره هدف (حذف کامل بنفش) */
+.hero .circle, .hero .circle span {
+    background: #0F766E !important; /* سبز زمردی */
+    color: #ffffff !important;
+    border: 2px solid #CCFBF1 !important;
+    box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3) !important;
+}
+/* ۲. کمی نظم دادن به کارت‌های آمار برای خوانایی بهتر */
+.stat {
+    padding: 14px 8px !important;
+}
+.stat-num {
+    margin-top: 6px !important;
+    margin-bottom: 2px !important;
+}
+.stat-label {
+    font-size: 11.5px !important;
+}
+</style>
+
+<script>
+// حذف ایموجی دست از کنار سلام
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const greeting = document.querySelector('.greeting');
+        if(greeting) {
+            // ایموجی دست رو حذف میکنه
+            greeting.innerHTML = greeting.innerHTML.replace('👋', ''); 
+        }
+    }, 1000);
+});
+</script>
     
 </body>
                                                       </html>

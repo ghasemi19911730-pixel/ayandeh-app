@@ -2575,6 +2575,72 @@ html.dark-mode #modal-detail .modal-content {
     background: #1e293b !important;
 }
     </style>
+    <style>
+/* =========================================
+   برگرداندن پنجره جزئیات به حالت اول (ریست کامل)
+   ========================================= */
+
+/* ۱. پنجره رو از حالت فرم در بیار و به حالت عادی برگردون */
+#modal-detail .modal-content {
+    display: block !important; 
+    padding: 20px !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+}
+
+/* ۲. بدنه جدول جزئیات رو کاملاً ریست کن */
+#detail-body {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+}
+
+/* ۳. هر چیزی که داخل جزئیات هست رو از حالت عمودی در بیار (مثل قبل افقی بشه) */
+#detail-body div, 
+#detail-body p, 
+#detail-body span, 
+#detail-body table, 
+#detail-body tr, 
+#detail-body td {
+    display: block !important; 
+    white-space: normal !important;
+    word-break: normal !important;
+    width: 100% !important;
+    text-align: right !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
+}
+
+/* ۴. اگر از جدول استفاده کرده بود، بهش حالت ردیفی برگردون */
+#detail-body table {
+    display: table !important;
+}
+#detail-body tr {
+    display: table-row !important;
+}
+#detail-body td, #detail-body th {
+    display: table-cell !important;
+    padding: 10px !important;
+    border-bottom: 1px solid #eee !important;
+}
+
+/* ۵. تنظیم رنگ متن‌ها */
+#detail-body {
+    color: #1e293b !important;
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+}
+
+html.dark-mode #detail-body {
+    color: #f8fafc !important;
+}
+html.dark-mode #detail-body td, 
+html.dark-mode #detail-body th {
+    border-bottom-color: #334155 !important;
+}
+    </style>
     
 </body>
                                                       </html>

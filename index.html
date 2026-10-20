@@ -2916,5 +2916,143 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 })();
     </script>
+    <script>
+// کد نهایی و ضدگلوله (بدون نیاز به پاک کردن کدهای قبلی)
+(function() {
+    // ۱. مخفی کردن تمام دکمه‌های استوری قبلی برای همیشه
+    const killOldBtns = setInterval(() => {
+        document.querySelectorAll('button').forEach(b => {
+            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'ultimate-fix-btn') {
+                b.style.display = 'none'; // دکمه‌های قبلی رو قایم میکنه
+            }
+        });
+    }, 200);
+
+    // ۲. ساخت یک دکمه کاملاً جدید
+    setInterval(() => {
+        const modal = document.getElementById('modal-detail');
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#ultimate-fix-btn')) {
+            let diyarBtn = null;
+            modal.querySelectorAll('button').forEach(b => { 
+                if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
+            });
+
+            if (diyarBtn) {
+                const btn = document.createElement('button');
+                btn.id = 'ultimate-fix-btn';
+                btn.innerHTML = '📸 ساخت استوری (نهایی)';
+                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 9999;';
+                
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    const bodyText = modal.querySelector('#detail-body').innerText;
+                    const getVal = (label) => {
+                        const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        for (let i = 0; i < lines.length; i++) {
+                            const cleanLine = lines[i].replace(/[:\-]/g, '').trim();
+                            if (cleanLine === label.trim()) { if (i + 1 < lines.length) return lines[i + 1]; }
+                        }
+                        return '';
+                    };
+                    
+                    // گرفتن اطلاعات
+                    const data = { type: getVal('نوع'), deal: getVal('معامله'), code: getVal('کد'), area: getVal('متراژ'), rooms: getVal('خواب'), floor: getVal('طبقه'), year: getVal('سال ساخت'), amenities: getVal('امکانات'), location: getVal('محدوده') || getVal('آدرس'), price: getVal('قیمت کل'), rahn: getVal('ودیعه'), rent: getVal('اجاره ماهانه') || getVal('اجاره'), desc: getVal('توضیحات') };
+                    
+                    showTheFinalStory(data);
+                };
+                diyarBtn.parentNode.insertBefore(btn, diyarBtn);
+            }
+        }
+    }, 1000);
+
+    // ۳. پنجره انتخاب و ساخت عکس
+    function showTheFinalStory(data) {
+        // ساخت متن
+        let text = '';
+        if (data.deal || data.type) text += `🏠 ${data.deal} ${data.type}\n`;
+        if (data.code) text += `📋 کد ملک: ${data.code}\n`;
+        if (data.area) text += `📐 متراژ: ${data.area}\n`;
+        if (data.rooms) text += `🛏 خواب: ${data.rooms}\n`;
+        if (data.floor) text += `🏢 طبقه: ${data.floor}\n`;
+        if (data.year) text += `📅 سال ساخت: ${data.year}\n`;
+        if (data.amenities) text += `✨ امکانات: ${data.amenities}\n`;
+        if (data.location) text += `📍 محدوده: ${data.location}\n`;
+        if (data.price) text += `💰 قیمت: ${data.price}\n`;
+        if (data.rahn) text += `💰 ودیعه: ${data.rahn}\n`;
+        if (data.rent) text += `💰 اجاره: ${data.rent}\n`;
+        if (data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
+
+        // ساخت کادر مخفی با استایل کاملاً قفل شده (بدون Flex)
+        const canvasBox = document.createElement('div');
+        canvasBox.style.cssText = 'width: 1080px; height: 1920px; background: #ffffff; position: fixed; top: 0; left: 0; z-index: 9999999; font-family: Vazirmatn, sans-serif; direction: rtl; overflow: hidden;';
+        
+        // هدر (قفل شده در بالا)
+        canvasBox.innerHTML += `
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 60px; color: white; box-sizing: border-box;">
+                <div style="font-size: 48px; font-weight: 900;">آژانس املاک آینده‌ساز</div>
+                <div style="font-size: 70px;">🏠</div>
+            </div>
+        `;
+        
+        // متن (قفل شده در وسط)
+        canvasBox.innerHTML += `
+            <div style="position: absolute; top: 150px; bottom: 250px; left: 0; width: 100%; padding: 60px; box-sizing: border-box; background: #ffffff; overflow: hidden;">
+                <div style="font-size: 46px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+            </div>
+        `;
+
+        // فوتر (قفل شده در پایین)
+        canvasBox.innerHTML += `
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 250px; background: #f8fafc; border-top: 4px solid #f1f5f9; display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box;">
+                <div style="font-size: 56px; font-weight: 900; color: #1e293b;">رحمان قاسمی</div>
+                <div style="font-size: 36px; font-weight: 600; color: #64748b; margin-top: 10px;">مشاور املاک آینده‌ساز</div>
+                <div style="font-size: 56px; font-weight: 900; color: #0F766E; margin-top: 20px;">۰۹۱۴۲۰۲۲۸۹۸</div>
+            </div>
+        `;
+
+        document.body.appendChild(canvasBox);
+
+        // عکس گرفتن
+        setTimeout(() => {
+            html2canvas(canvasBox, { scale: 1, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+                document.body.removeChild(canvasBox);
+                
+                // نمایش عکس نهایی
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
+                
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.style.cssText = 'width: 100%; max-width: 320px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+                
+                const btnSave = document.createElement('button');
+                btnSave.innerHTML = '⬇️ دانلود در گالری';
+                btnSave.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:14px; width:100%; max-width:320px; cursor:pointer;';
+                btnSave.onclick = () => {
+                    const link = document.createElement('a');
+                    link.download = 'AyandehStory.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                };
+
+                const btnClose = document.createElement('button');
+                btnClose.innerHTML = '✕ بستن';
+                btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; cursor:pointer;';
+                btnClose.onclick = () => overlay.remove();
+                
+                overlay.appendChild(img);
+                overlay.appendChild(btnSave);
+                overlay.appendChild(btnClose);
+                document.body.appendChild(overlay);
+                
+            }).catch(err => {
+                document.body.removeChild(canvasBox);
+                alert('خطا در ساخت عکس.');
+            });
+        }, 500);
+    }
+})();
+    </script>
+    
 </body>
                                                       </html>

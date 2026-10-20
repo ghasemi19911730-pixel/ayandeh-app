@@ -3372,6 +3372,183 @@ window.renderFinalStory = function(divarText, showHeader, showName, showPhone, s
     }
 };
     </script>
+    <script>
+// کد نهایی و یکپارچه برای رفع تمام مشکلات استوری
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ۱. حذف مداوم دکمه‌های تکراری و ساخت فقط یک دکمه
+    setInterval(() => {
+        // هر دکمه استوری که از کدهای قبلی مونده رو پاک کن
+        document.querySelectorAll('.btn-story-detail, #new-story-btn, #fixed-story-btn, #final-story-btn, #ultimate-story-btn').forEach(b => b.remove());
+
+        const modal = document.getElementById('modal-detail');
+        if (modal && modal.classList.contains('show')) {
+            let diyarBtn = null;
+            modal.querySelectorAll('button').forEach(b => { 
+                if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
+            });
+
+            if (diyarBtn) {
+                const btn = document.createElement('button');
+                btn.id = 'ultimate-story-btn';
+                btn.innerHTML = '📸 ساخت استوری (انتخابی)';
+                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 999;';
+                
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    const bodyText = modal.querySelector('#detail-body').innerText;
+                    const getVal = (label) => {
+                        const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        for (let i = 0; i < lines.length; i++) {
+                            const cleanLine = lines[i].replace(/[:\-]/g, '').trim();
+                            if (cleanLine === label.trim()) { if (i + 1 < lines.length) return lines[i + 1]; }
+                        }
+                        return '';
+                    };
+                    const data = { type: getVal('نوع'), deal: getVal('معامله'), code: getVal('کد'), area: getVal('متراژ'), rooms: getVal('خواب'), floor: getVal('طبقه'), year: getVal('سال ساخت'), amenities: getVal('امکانات'), location: getVal('محدوده') || getVal('آدرس'), price: getVal('قیمت کل'), rahn: getVal('ودیعه'), rent: getVal('اجاره ماهانه') || getVal('اجاره'), desc: getVal('توضیحات') };
+                    
+                    // باز کردن پنجره انتخاب
+                    const ov = document.createElement('div');
+                    ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
+                    let checkboxes = '';
+                    const addCheck = (id, label, isChecked = true, val = '') => {
+                        if (!val) return;
+                        checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
+                    };
+                    addCheck('chk-header', 'لوگوی بالای استوری', true, 'آژانس املاک آینده‌ساز');
+                    addCheck('chk-type', 'نوع و معامله', true, `${data.deal} ${data.type}`);
+                    addCheck('chk-code', 'کد ملک', true, data.code);
+                    addCheck('chk-area', 'متراژ', true, data.area);
+                    addCheck('chk-rooms', 'تعداد خواب', true, data.rooms);
+                    addCheck('chk-floor', 'طبقه', true, data.floor);
+                    addCheck('chk-year', 'سال ساخت', true, data.year);
+                    addCheck('chk-amenities', 'امکانات', true, data.amenities);
+                    addCheck('chk-location', 'محدوده', true, data.location);
+                    addCheck('chk-price', 'قیمت کل', true, data.price);
+                    addCheck('chk-rahn', 'ودیعه', true, data.rahn);
+                    addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
+                    addCheck('chk-desc', 'توضیحات', true, data.desc);
+                    checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات تماس شما:</div>`;
+                    addCheck('chk-name', 'نام شما', true, 'رحمان قاسمی');
+                    addCheck('chk-phone', 'شماره تماس', true, '۰۹۱۴۲۰۲۲۸۹۸');
+                    addCheck('chk-agency', 'عنوان شغلی (پایین)', true, 'مشاور املاک آینده‌ساز');
+                    
+                    ov.innerHTML = `<div style="background:#fff; border-radius:20px; width:100%; max-width:400px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="padding:20px; border-bottom:2px solid #0F766E; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:16px; font-weight:900; color:#0F766E;">انتخاب موارد استوری</div><button id="sel-close" style="background:#fee2e2; border:none; width:30px; height:30px; border-radius:50%; color:#dc2626; cursor:pointer;">✕</button></div><div style="padding:10px; overflow-y:auto; flex:1;">${checkboxes}</div><div style="padding:15px; border-top:1px solid #f1f5f9;"><button id="sel-continue" style="width:100%; padding:14px; background:#0F766E; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; font-size:15px; cursor:pointer;">ساخت پیش‌نمایش عکس</button></div></div>`;
+                    document.body.appendChild(ov);
+                    
+                    document.getElementById('sel-close').onclick = () => ov.remove();
+                    
+                    document.getElementById('sel-continue').onclick = () => {
+                        const getChk = (id) => { const el = document.getElementById(id); return el ? el.checked : false; };
+                        let divarText = '';
+                        if (getChk('chk-type')) divarText += `🏠 ${data.deal} ${data.type}\n`;
+                        if (getChk('chk-code') && data.code) divarText += `📋 کد ملک: ${data.code}\n`;
+                        if (getChk('chk-area') && data.area) divarText += `📐 متراژ: ${data.area}\n`;
+                        if (getChk('chk-rooms') && data.rooms) divarText += `🛏 خواب: ${data.rooms}\n`;
+                        if (getChk('chk-floor') && data.floor) divarText += `🏢 طبقه: ${data.floor}\n`;
+                        if (getChk('chk-year') && data.year) divarText += `📅 سال ساخت: ${data.year}\n`;
+                        if (getChk('chk-amenities') && data.amenities) divarText += `✨ امکانات: ${data.amenities}\n`;
+                        if (getChk('chk-location') && data.location) divarText += `📍 محدوده: ${data.location}\n`;
+                        if (getChk('chk-price') && data.price) divarText += `💰 قیمت: ${data.price}\n`;
+                        if (getChk('chk-rahn') && data.rahn) divarText += `💰 ودیعه: ${data.rahn}\n`;
+                        if (getChk('chk-rent') && data.rent) divarText += `💰 اجاره: ${data.rent}\n`;
+                        if (getChk('chk-desc') && data.desc) divarText += `\n📝 توضیحات: ${data.desc}\n`;
+                        ov.remove();
+                        
+                        // شروع ساخت عکس نهایی (با ابعاد و پس‌زمینه کاملاً سفید)
+                        const showHeader = getChk('chk-header');
+                        const showName = getChk('chk-name');
+                        const showPhone = getChk('chk-phone');
+                        const showAgency = getChk('chk-agency');
+                        
+                        // ساخت یک محفظه مخفی و بزرگ برای عکس
+                        const captureArea = document.createElement('div');
+                        captureArea.style.cssText = 'position:fixed; top:-9999px; left:-9999px; width:1080px; height:1920px; background:#ffffff; display:flex; flex-direction:column; direction:rtl; font-family:Vazirmatn, sans-serif; overflow:hidden;';
+                        
+                        let headerHtml = showHeader ? `<div style="display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #0F766E, #10B981); padding: 45px 60px; color: white;"><div style="font-size:48px; font-weight:900;">آژانس املاک آینده‌ساز</div><div style="font-size:60px;">🏠</div></div>` : '';
+                        let footerHtml = (showName || showPhone || showAgency) ? `<div style="text-align:center; border-top: 6px solid #f1f5f9; padding-top:45px; margin-top:45px; background: #f8fafc; border-radius: 40px; padding-bottom: 45px; padding-left:40px; padding-right:40px;">${showName ? `<div style="font-size:56px; font-weight:900; color:#1e293b;">رحمان قاسمی</div>` : ''}${showAgency ? `<div style="font-size:36px; font-weight:600; color:#64748b; margin-top: 10px;">مشاور املاک آینده‌ساز</div>` : ''}${showPhone ? `<div style="font-size:56px; font-weight:900; color:#0F766E; margin-top:20px;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}</div>` : '';
+                        
+                        captureArea.innerHTML = `
+                            ${headerHtml}
+                            <div style="flex:1; padding:60px; box-sizing:border-box; background:#ffffff;">
+                                <div style="font-size:46px; font-weight:700; color:#334155; line-height: 2.2; white-space: pre-wrap;">${divarText}</div>
+                            </div>
+                            <div style="padding: 0 60px 60px 60px;">
+                                ${footerHtml}
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(captureArea);
+                        
+                        // صبر میکنیم نیم ثانیه تا فونت لود شه و بعد عکس میگیریم
+                        setTimeout(() => {
+                            html2canvas(captureArea, { 
+                                scale: 1, 
+                                backgroundColor: '#ffffff', // این خط هاله خاکستری رو کاملا حذف میکنه
+                                useCORS: true
+                            }).then(canvas => {
+                                document.body.removeChild(captureArea);
+                                
+                                // نمایش پیش‌نمایش
+                                const overlay = document.createElement('div');
+                                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
+                                
+                                const img = document.createElement('img');
+                                img.src = canvas.toDataURL('image/png');
+                                img.style.cssText = 'width: 100%; max-width: 320px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+                                
+                                const btnShare = document.createElement('button');
+                                btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام';
+                                btnShare.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-family:inherit; font-size:14px; cursor:pointer; width:100%; max-width:320px;';
+                                
+                                const btnDownload = document.createElement('button');
+                                btnDownload.innerHTML = '⬇️ دانلود در گالری';
+                                btnDownload.style.cssText = 'margin-top:10px; padding:10px 20px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; font-family:inherit; font-size:13px; cursor:pointer; width:100%; max-width:320px;';
+                                
+                                const btnClose = document.createElement('button');
+                                btnClose.innerHTML = '✕ بستن';
+                                btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; font-family:inherit; cursor:pointer;';
+                                
+                                overlay.appendChild(img);
+                                overlay.appendChild(btnShare);
+                                overlay.appendChild(btnDownload);
+                                overlay.appendChild(btnClose);
+                                document.body.appendChild(overlay);
+                                
+                                btnClose.onclick = () => overlay.remove();
+                                
+                                btnDownload.onclick = () => {
+                                    const link = document.createElement('a');
+                                    link.download = 'AyandehStory.png';
+                                    link.href = canvas.toDataURL('image/png');
+                                    link.click();
+                                };
+                                
+                                btnShare.onclick = () => {
+                                    canvas.toBlob(blob => {
+                                        const file = new File([blob], 'AyandehStory.png', { type: 'image/png' });
+                                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                            navigator.share({ files: [file], title: 'فایل املاک', text: 'مشاهده فایل جدید املاک' });
+                                        } else {
+                                            alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. عکس ذخیره می‌شود.');
+                                            btnDownload.click();
+                                        }
+                                    }, 'image/png');
+                                };
+                                
+                            }).catch(err => {
+                                document.body.removeChild(captureArea);
+                                alert('خطا در ساخت عکس.');
+                            });
+                        }, 500);
+                    };
+                };
+                diyarBtn.parentNode.insertBefore(btn, diyarBtn);
+            }
+        }
+    }, 500);
+});
+    </script>
     
 </body>
                                                       </html>

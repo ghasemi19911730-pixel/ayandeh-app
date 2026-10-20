@@ -2710,10 +2710,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const bodyText = modal.querySelector('#detail-body').innerText;
+                    
                     const getVal = (label) => {
-                        const regex = new RegExp(label + '\\s*\\n([^\\n]+)');
-                        const match = bodyText.match(regex);
-                        return match ? match[1].trim() : '';
+                        const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        for (let i = 0; i < lines.length; i++) {
+                            const cleanLine = lines[i].replace(/[:\-]/g, '').trim();
+                            if (cleanLine === label.trim()) {
+                                if (i + 1 < lines.length) {
+                                    return lines[i + 1];
+                                }
+                            }
+                        }
+                        return '';
                     };
 
                     const data = {
@@ -2729,7 +2737,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         price: getVal('قیمت کل'),
                         rahn: getVal('ودیعه'),
                         rent: getVal('اجاره ماهانه') || getVal('اجاره'),
-                        desc: getVal('توضیحات') // اضافه شدن توضیحات
+                        desc: getVal('توضیحات') 
                     };
                     
                     openSelector(data);
@@ -2754,7 +2762,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </label>`;
         };
 
-        // تنظیمات هدر و اطلاعات ملک
         addCheck('chk-header', 'لوگوی بالای استوری', true, 'آژانس املاک آینده‌ساز');
         addCheck('chk-type', 'نوع و معامله', true, `${data.deal} ${data.type}`);
         addCheck('chk-code', 'کد ملک', true, data.code);
@@ -2767,9 +2774,8 @@ document.addEventListener('DOMContentLoaded', function() {
         addCheck('chk-price', 'قیمت کل', true, data.price);
         addCheck('chk-rahn', 'ودیعه', true, data.rahn);
         addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
-        addCheck('chk-desc', 'توضیحات', true, data.desc); // اضافه شدن به لیست انتخاب
+        addCheck('chk-desc', 'توضیحات', true, data.desc);
 
-        // اطلاعات تماس
         checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات تماس شما:</div>`;
         addCheck('chk-name', 'نام شما', true, 'رحمان قاسمی');
         addCheck('chk-phone', 'شماره تماس', true, '۰۹۱۴۲۰۲۲۸۹۸');
@@ -2808,7 +2814,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-price') && data.price) divarText += `💰 قیمت: ${data.price}\n`;
             if (getChk('chk-rahn') && data.rahn) divarText += `💰 ودیعه: ${data.rahn}\n`;
             if (getChk('chk-rent') && data.rent) divarText += `💰 اجاره: ${data.rent}\n`;
-            // اگر توضیحات تیک خورده بود و متنی وجود داشت
             if (getChk('chk-desc') && data.desc) divarText += `\n📝 توضیحات: ${data.desc}\n`;
 
             const showHeader = getChk('chk-header');
@@ -2825,7 +2830,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         
-        // هدر حرفه‌ای
         let headerHtml = '';
         if (showHeader) {
             headerHtml = `
@@ -2835,7 +2839,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>`;
         }
 
-        // فوتر حرفه‌ای
         let footerHtml = '';
         if (showName || showPhone || showAgency) {
             footerHtml = `
@@ -2847,7 +2850,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const previewBox = document.createElement('div');
-        // ظاهر حرفه‌ای (کارت سفید با سایه)
         previewBox.style.cssText = 'width: 320px; height: 560px; background: #ffffff; border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #e2e8f0; display: flex; flex-direction: column;';
         
         previewBox.innerHTML = `

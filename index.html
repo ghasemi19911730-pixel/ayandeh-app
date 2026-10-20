@@ -2955,6 +2955,39 @@ ${divarText}
     }
 });
 </script>
+    <style>
+/* اجبار به سفید بودن پس‌زمینه بخش متن در استوری (برای حالت شب) */
+div[style*="width: 320px; height: 560px"] div[style*="flex:1"] {
+    background-color: #ffffff !important;
+}
+div[style*="width: 320px; height: 560px"] div[style*="font-size:13px"] {
+    background-color: #ffffff !important;
+}
+</style>
+
+<script>
+// رفع مشکل رنگ خاکستری در عکس دانلودی
+document.addEventListener('DOMContentLoaded', function() {
+    const originalHtml2canvas = window.html2canvas;
+    if(originalHtml2canvas) {
+        window.html2canvas = function(element, options) {
+            if (!options) options = {};
+            // اجبار مرورگر به کشیدن پس‌زمینه سفید
+            options.backgroundColor = '#ffffff'; 
+            
+            // ذخیره رنگ اصلی و سفید کردن موقت اون بخش
+            const originalBg = element.style.backgroundColor;
+            element.style.backgroundColor = '#ffffff';
+            
+            // گرفتن عکس و برگردوندن رنگ به حالت اول
+            return originalHtml2canvas(element, options).then(canvas => {
+                element.style.backgroundColor = originalBg;
+                return canvas;
+            });
+        };
+    }
+});
+</script>
     
 </body>
                                                       </html>

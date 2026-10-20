@@ -2955,6 +2955,120 @@ ${divarText}
     }
 });
 </script>
+    <style>
+/* ظاهر شیک و کارتی برای لیست فایل‌های تطبیقی */
+.pr3-match {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    background: #ffffff !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 12px !important;
+    position: relative !important;
+}
+.pr3-match input[type="checkbox"] {
+    position: absolute !important;
+    top: 16px !important;
+    left: 16px !important;
+    width: 22px !important;
+    height: 22px !important;
+    accent-color: #0F766E !important;
+    cursor: pointer !important;
+}
+.pr3-match-info {
+    width: 100% !important;
+    padding-left: 32px !important; /* فاصله برای تیک */
+    margin-bottom: 8px !important;
+}
+.pr3-match-name {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+}
+.pr3-match-sub {
+    font-size: 12.5px !important;
+    color: #64748b !important;
+    margin-top: 6px !important;
+    line-height: 1.8 !important;
+}
+.pr3-score {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ۱. رفع باگ اسم مالک (بدون هیچ دکمه‌ای)
+    document.addEventListener('click', function(e) {
+        if (e.target && (e.target.innerText.includes('ذخیره فایل') || e.target.innerText === 'ذخیره')) {
+            const ownerNameInput = document.getElementById('p-owner-name');
+            const ownerPhoneInput = document.getElementById('p-owner-phone');
+            if (ownerNameInput) {
+                const oName = ownerNameInput.value.trim();
+                const oPhone = ownerPhoneInput ? ownerPhoneInput.value.trim() : '';
+                setTimeout(() => {
+                    try {
+                        let props = JSON.parse(localStorage.getItem('properties') || '[]');
+                        if (props.length > 0) {
+                            let lastProp = props[props.length - 1];
+                            lastProp.owner = oName;
+                            lastProp.ownerPhone = oPhone;
+                            localStorage.setItem('properties', JSON.stringify(props));
+                        }
+                    } catch(err) {}
+                }, 500);
+            }
+        }
+    }, true);
+
+    // ۲. ارتقای دکمه پشتیبان‌گیری موجود (شامل همکاران)
+    setInterval(() => {
+        document.querySelectorAll('.feature, button').forEach(btn => {
+            if (btn.innerText.includes('پشتیبان') && !btn.dataset.fullBackupFixed) {
+                btn.dataset.fullBackupFixed = 'true'; 
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                        const backupData = {
+                            customers: JSON.parse(localStorage.getItem('customers') || '[]'),
+                            properties: JSON.parse(localStorage.getItem('properties') || '[]'),
+                            appointments: JSON.parse(localStorage.getItem('ayandeh_appointments') || '[]'),
+                            colleagues: JSON.parse(localStorage.getItem('ayandeh-colleagues') || '[]'), 
+                            settings: JSON.parse(localStorage.getItem('ayandeh_settings') || '{}'),
+                            theme: localStorage.getItem('ayandeh-theme')
+                        };
+                        const jsonString = JSON.stringify(backupData, null, 2);
+                        const blob = new Blob([jsonString], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        const date = new Date().toISOString().slice(0,10);
+                        a.download = `Ayandeh-Full-Backup-${date}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        alert('✅ فایل پشتیبان کامل (شامل همکاران) دانلود شد.');
+                    } catch(err) {
+                        alert('خطا در گرفتن پشتیبان: ' + err.message);
+                    }
+                };
+            }
+        });
+    }, 1000);
+});
+</script>
     
 </body>
                                                       </html>

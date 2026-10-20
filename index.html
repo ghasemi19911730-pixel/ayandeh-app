@@ -2728,7 +2728,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         location: getVal('محدوده') || getVal('آدرس'),
                         price: getVal('قیمت کل'),
                         rahn: getVal('ودیعه'),
-                        rent: getVal('اجاره ماهانه') || getVal('اجاره')
+                        rent: getVal('اجاره ماهانه') || getVal('اجاره'),
+                        desc: getVal('توضیحات') // اضافه شدن توضیحات
                     };
                     
                     openSelector(data);
@@ -2753,6 +2754,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </label>`;
         };
 
+        // تنظیمات هدر و اطلاعات ملک
+        addCheck('chk-header', 'لوگوی بالای استوری', true, 'آژانس املاک آینده‌ساز');
         addCheck('chk-type', 'نوع و معامله', true, `${data.deal} ${data.type}`);
         addCheck('chk-code', 'کد ملک', true, data.code);
         addCheck('chk-area', 'متراژ', true, data.area);
@@ -2764,11 +2767,13 @@ document.addEventListener('DOMContentLoaded', function() {
         addCheck('chk-price', 'قیمت کل', true, data.price);
         addCheck('chk-rahn', 'ودیعه', true, data.rahn);
         addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
+        addCheck('chk-desc', 'توضیحات', true, data.desc); // اضافه شدن به لیست انتخاب
 
+        // اطلاعات تماس
         checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات تماس شما:</div>`;
         addCheck('chk-name', 'نام شما', true, 'رحمان قاسمی');
         addCheck('chk-phone', 'شماره تماس', true, '۰۹۱۴۲۰۲۲۸۹۸');
-        addCheck('chk-agency', 'نام آژانس', true, 'آینده‌ساز');
+        addCheck('chk-agency', 'عنوان شغلی (پایین)', true, 'مشاور املاک آینده‌ساز');
 
         ov.innerHTML = `
             <div style="background:#fff; border-radius:20px; width:100%; max-width:400px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
@@ -2803,24 +2808,38 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-price') && data.price) divarText += `💰 قیمت: ${data.price}\n`;
             if (getChk('chk-rahn') && data.rahn) divarText += `💰 ودیعه: ${data.rahn}\n`;
             if (getChk('chk-rent') && data.rent) divarText += `💰 اجاره: ${data.rent}\n`;
+            // اگر توضیحات تیک خورده بود و متنی وجود داشت
+            if (getChk('chk-desc') && data.desc) divarText += `\n📝 توضیحات: ${data.desc}\n`;
 
+            const showHeader = getChk('chk-header');
             const showName = getChk('chk-name');
             const showPhone = getChk('chk-phone');
             const showAgency = getChk('chk-agency');
 
             ov.remove();
-            generateStory(divarText, showName, showPhone, showAgency);
+            generateStory(divarText, showHeader, showName, showPhone, showAgency);
         };
     }
 
-    function generateStory(divarText, showName, showPhone, showAgency) {
+    function generateStory(divarText, showHeader, showName, showPhone, showAgency) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         
+        // هدر حرفه‌ای
+        let headerHtml = '';
+        if (showHeader) {
+            headerHtml = `
+            <div style="display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #0F766E, #10B981); padding: 15px 20px; color: white;">
+                <div style="font-size:14px; font-weight:900;">آژانس املاک آینده‌ساز</div>
+                <div style="font-size:18px;">🏠</div>
+            </div>`;
+        }
+
+        // فوتر حرفه‌ای
         let footerHtml = '';
         if (showName || showPhone || showAgency) {
             footerHtml = `
-            <div style="text-align:center; border-top: 2px solid #f1f5f9; padding-top:12px; margin-top:10px; background: #f8fafc; border-radius: 12px; padding-bottom: 12px;">
+            <div style="text-align:center; border-top: 2px solid #f1f5f9; padding-top:15px; margin-top:15px; background: #f8fafc; border-radius: 12px; padding-bottom: 15px; padding-left:10px; padding-right:10px;">
                 ${showName ? `<div style="font-size:16px; font-weight:900; color:#1e293b;">رحمان قاسمی</div>` : ''}
                 ${showAgency ? `<div style="font-size:11px; font-weight:600; color:#64748b; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
                 ${showPhone ? `<div style="font-size:16px; font-weight:900; color:#0F766E; margin-top:6px;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
@@ -2828,28 +2847,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const previewBox = document.createElement('div');
-        previewBox.style.cssText = 'width: 300px; height: 530px; background: #ffffff; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
+        // ظاهر حرفه‌ای (کارت سفید با سایه)
+        previewBox.style.cssText = 'width: 320px; height: 560px; background: #ffffff; border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #e2e8f0; display: flex; flex-direction: column;';
         
         previewBox.innerHTML = `
-            <div style="width:100%; height:100%; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; background: #ffffff;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #0F766E; padding-bottom:10px; margin-bottom:15px;">
-                    <div style="font-size:14px; font-weight:900; color:#0F766E;">آژانس املاک آینده‌ساز</div>
-                    <div style="font-size:18px;">🏠</div>
-                </div>
-                <div style="flex:1; overflow:hidden; font-size:13px; font-weight:700; color:#1e293b; line-height: 2.2; white-space: pre-wrap;">
+            ${headerHtml}
+            <div style="flex:1; overflow:hidden; padding:20px; box-sizing:border-box;">
+                <div style="font-size:13px; font-weight:700; color:#334155; line-height: 2.2; white-space: pre-wrap;">
 ${divarText}
                 </div>
-                ${footerHtml}
             </div>
+            ${footerHtml}
         `;
         
         const btnShare = document.createElement('button');
         btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام';
-        btnShare.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-family:inherit; font-size:14px; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); width:100%; max-width:300px;';
+        btnShare.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-family:inherit; font-size:14px; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); width:100%; max-width:320px;';
         
         const btnDownload = document.createElement('button');
         btnDownload.innerHTML = '⬇️ دانلود در گالری';
-        btnDownload.style.cssText = 'margin-top:10px; padding:10px 20px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; font-family:inherit; font-size:13px; cursor:pointer; width:100%; max-width:300px;';
+        btnDownload.style.cssText = 'margin-top:10px; padding:10px 20px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; font-family:inherit; font-size:13px; cursor:pointer; width:100%; max-width:320px;';
 
         const btnClose = document.createElement('button');
         btnClose.innerHTML = '✕ بستن';
@@ -2877,13 +2894,12 @@ ${divarText}
                 }
             });
             previewBox.querySelectorAll('div[style*="padding:20px"]').forEach(d => d.style.padding = '72px');
-            previewBox.querySelectorAll('div[style*="border-radius: 16px"]').forEach(d => d.style.borderRadius = '57px');
+            previewBox.querySelectorAll('div[style*="padding: 15px 20px"]').forEach(d => d.style.padding = '54px 72px');
+            previewBox.querySelectorAll('div[style*="border-radius: 20px"]').forEach(d => d.style.borderRadius = '72px');
             previewBox.querySelectorAll('div[style*="border-radius: 12px"]').forEach(d => d.style.borderRadius = '43px');
-            previewBox.querySelectorAll('div[style*="margin-bottom:15px"]').forEach(d => d.style.marginBottom = '54px');
-            previewBox.querySelectorAll('div[style*="padding-bottom:10px"]').forEach(d => d.style.paddingBottom = '36px');
-            previewBox.querySelectorAll('div[style*="padding-top:12px"]').forEach(d => d.style.paddingTop = '43px');
-            previewBox.querySelectorAll('div[style*="padding-bottom:12px"]').forEach(d => d.style.paddingBottom = '43px');
-            previewBox.querySelectorAll('div[style*="margin-top:10px"]').forEach(d => d.style.marginTop = '36px');
+            previewBox.querySelectorAll('div[style*="margin-top:15px"]').forEach(d => d.style.marginTop = '54px');
+            previewBox.querySelectorAll('div[style*="padding-top:15px"]').forEach(d => d.style.paddingTop = '54px');
+            previewBox.querySelectorAll('div[style*="padding-bottom: 15px"]').forEach(d => d.style.paddingBottom = '54px');
             previewBox.querySelectorAll('div[style*="margin-top:6px"]').forEach(d => d.style.marginTop = '22px');
 
             setTimeout(() => {

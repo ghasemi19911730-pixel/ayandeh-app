@@ -2690,13 +2690,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
+    // ۱. پاکسازی دکمه‌های تکراری
     setInterval(() => {
         document.querySelectorAll('button').forEach(b => {
-            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'simple-story-btn') b.remove();
+            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'table-story-btn') {
+                b.remove();
+            }
         });
 
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#simple-story-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#table-story-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2704,18 +2707,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'simple-story-btn';
-                btn.innerHTML = '📸 ساخت استوری (ساده)';
+                btn.id = 'table-story-btn';
+                btn.innerHTML = '📸 ساخت استوری (نهایی)';
                 btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const bodyText = modal.querySelector('#detail-body').innerText;
+                    
                     const getVal = (label) => {
                         const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        const blacklist = ['عنوان','کد','نقش','دسته','نوع','معامله','محدوده','آدرس','متراژ','خواب','طبقه','کل طبقات','واحد در طبقه','سال ساخت','موقعیت','پارکینگ','قیمت کل','هر متر','امکانات','نام مالک','نوع سند','وضعیت','تاریخ ثبت','توضیحات','ودیعه','اجاره','اجاره ماهانه'];
                         for (let i = 0; i < lines.length; i++) {
-                            if (lines[i].replace(/[:\-]/g, '').trim() === label) { 
-                                if (i + 1 < lines.length) return lines[i + 1]; 
+                            if (lines[i] === label) {
+                                let next = lines[i + 1];
+                                if (next && !blacklist.includes(next) && !next.includes('کد:')) return next;
+                                return '';
                             }
                         }
                         return '';
@@ -2730,14 +2737,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         desc: getVal('توضیحات') 
                     };
                     
-                    showMenu(data);
+                    openMenu(data);
                 };
                 diyarBtn.parentNode.insertBefore(btn, diyarBtn);
             }
         }
     }, 1000);
 
-    function showMenu(data) {
+    function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         let checkboxes = '';
@@ -2793,33 +2800,44 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
         const storyBox = document.createElement('div');
-        // چیدمان 100% ساده و بدون Flex برای جلوگیری از باگ
-        storyBox.style.cssText = 'width: 340px; height: 604px; background: #ffffff; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
+        storyBox.style.cssText = 'width: 340px; height: 604px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
         
-        let html = '';
+        // ساختار جدول (ضدگلوله برای html2canvas)
+        let tableHtml = '<table style="width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">';
+        
+        // هدر
         if (showHeader) {
-            html += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(135deg, #0F766E, #10B981); color: white; line-height: 60px; padding: 0 20px; box-sizing: border-box; font-size: 15px; font-weight: 900; z-index: 10;">
-                آژانس املاک آینده‌ساز 🏠
-            </div>`;
+            tableHtml += `<tr>
+                <td style="height: 60px; background: linear-gradient(135deg, #0F766E, #10B981); color: white; padding: 0 20px; font-size: 15px; font-weight: 900; vertical-align: middle;">
+                    آژانس املاک آینده‌ساز 🏠
+                </td>
+            </tr>`;
         }
 
-        html += `<div style="position: absolute; top: ${showHeader ? 60 : 0}px; bottom: ${(showName || showPhone || showAgency) ? 110 : 0}px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background: #ffffff; overflow: hidden; z-index: 5;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
-        </div>`;
+        // متن
+        tableHtml += `<tr>
+            <td style="vertical-align: top; padding: 20px; background: #ffffff; overflow: hidden;">
+                <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+            </td>
+        </tr>`;
 
+        // فوتر
         if (showName || showPhone || showAgency) {
-            html += `<div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background: #f8fafc; border-top: 2px solid #f1f5f9; text-align: center; box-sizing: border-box; padding-top: 12px; z-index: 10;">
-                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #1e293b;">رحمان قاسمی</div>` : ''}
-                ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: #64748b; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #0F766E; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
-            </div>`;
+            tableHtml += `<tr>
+                <td style="height: 110px; background: #f8fafc; border-top: 2px solid #f1f5f9; text-align: center; vertical-align: middle; padding: 10px;">
+                    ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #1e293b;">رحمان قاسمی</div>` : ''}
+                    ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: #64748b; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                    ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #0F766E; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
+                </td>
+            </tr>`;
         }
 
-        storyBox.innerHTML = html;
+        tableHtml += '</table>';
+        storyBox.innerHTML = tableHtml;
 
         const btnSave = document.createElement('button');
         btnSave.innerHTML = '📤 ارسال / دانلود در گالری';
-        btnSave.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
+        btnSave.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);';
         
         const btnClose = document.createElement('button');
         btnClose.innerHTML = '✕ بستن';
@@ -2835,10 +2853,10 @@ document.addEventListener('DOMContentLoaded', function() {
         btnSave.onclick = () => {
             btnSave.innerHTML = '⏳ در حال ساخت...';
             
-            // عکس گرفتن با تنظیمات ساده
             html2canvas(storyBox, { 
-                scale: 3, 
-                backgroundColor: '#ffffff' 
+                scale: 3.2, 
+                backgroundColor: '#ffffff',
+                useCORS: true
             }).then(canvas => {
                 canvas.toBlob(blob => {
                     const file = new File([blob], 'AyandehStory.png', { type: 'image/png' });

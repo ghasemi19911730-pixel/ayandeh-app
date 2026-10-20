@@ -2685,6 +2685,154 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
     </script>
+    <!-- کتابخانه ساخت عکس -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+// قابلیت استوری‌ساز هوشمند (با قابلیت ارسال به همه اپ‌ها)
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // اضافه کردن دکمه به کارت‌های فایل
+    setInterval(() => {
+        document.querySelectorAll('.property-card').forEach(card => {
+            if (card.querySelector('.btn-story')) return;
+            
+            const btn = document.createElement('button');
+            btn.className = 'btn-story';
+            btn.innerHTML = '📸 ساخت استوری';
+            btn.style.cssText = 'margin-top:10px; width:100%; padding:10px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3);';
+            
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const title = card.querySelector('h3') ? card.querySelector('h3').innerText : 'فایل املاک';
+                const price = card.querySelector('.price') ? card.querySelector('.price').innerText : '';
+                const text = card.innerText;
+                
+                const areaMatch = text.match(/(\d+)\s*متر/);
+                const roomMatch = text.match(/(\d+)\s*خواب/);
+                const area = areaMatch ? areaMatch[1] + ' متر' : '';
+                const rooms = roomMatch ? roomMatch[1] + ' خواب' : '';
+                
+                generateStory(title, price, area, rooms);
+            };
+            
+            const actionArea = card.querySelector('div[style*="display: flex"]') || card;
+            actionArea.appendChild(btn);
+        });
+    }, 2000);
+
+    function generateStory(title, price, area, rooms) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
+        
+        const previewBox = document.createElement('div');
+        previewBox.style.cssText = 'width: 260px; height: 460px; background: #fff; border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);';
+        
+        // طراحی استوری
+        previewBox.innerHTML = `
+            <div style="width:100%; height:100%; background: linear-gradient(135deg, #1e1b4b, #0f766e); padding:25px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; color:white;">
+                <div>
+                    <div style="background:rgba(255,255,255,0.15); padding:8px; border-radius:10px; font-size:11px; margin-bottom:15px; text-align:center;">آژانس املاک آینده‌ساز</div>
+                    <h1 style="font-size:20px; font-weight:900; margin:0 0 10px 0; line-height:1.4;">${title}</h1>
+                    <div style="font-size:24px; font-weight:900; color:#34D399; margin-bottom:20px;">${price}</div>
+                    
+                    <div style="display:flex; gap:10px; font-size:13px;">
+                        <div style="background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:10px;">📐 ${area}</div>
+                        <div style="background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:10px;">🛏 ${rooms}</div>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
+                    <div style="font-size:14px; font-weight:bold; margin-bottom:5px;">برای مشاوره تماس بگیرید</div>
+                    <div style="font-size:16px; font-weight:900; color:#FCD34D; direction:ltr;">0914 123 4567</div>
+                </div>
+            </div>
+        `;
+        
+        // دکمه ارسال به همه اپ‌ها (واتساپ، اینستاگرام، روبیکا و...)
+        const btnShare = document.createElement('button');
+        btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام / روبیکا';
+        btnShare.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-family:inherit; font-size:14px; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); width:100%; max-width:300px;';
+        
+        // دکمه دانلود (برای مواقعی که فقط می‌خوای ذخیره کنی)
+        const btnDownload = document.createElement('button');
+        btnDownload.innerHTML = '⬇️ فقط دانلود در گالری';
+        btnDownload.style.cssText = 'margin-top:10px; padding:10px 20px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; font-family:inherit; font-size:13px; cursor:pointer; width:100%; max-width:300px;';
+
+        const btnClose = document.createElement('button');
+        btnClose.innerHTML = '✕ بستن';
+        btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; font-family:inherit; cursor:pointer;';
+        
+        overlay.appendChild(previewBox);
+        overlay.appendChild(btnShare);
+        overlay.appendChild(btnDownload);
+        overlay.appendChild(btnClose);
+        document.body.appendChild(overlay);
+        
+        btnClose.onclick = () => overlay.remove();
+        
+        // تبدیل به عکس
+        function renderCanvas(callback) {
+            // بزرگ کردن موقت باکس برای کیفیت بالا
+            previewBox.style.width = '1080px';
+            previewBox.style.height = '1920px';
+            previewBox.style.position = 'absolute';
+            previewBox.style.left = '-9999px';
+            
+            setTimeout(() => {
+                html2canvas(previewBox, { scale: 1 }).then(canvas => {
+                    callback(canvas);
+                }).catch(err => {
+                    alert('خطا در ساخت عکس. لطفا اینترنت خود را بررسی کنید.');
+                    overlay.remove();
+                });
+            }, 500);
+        }
+
+        // عملیات اشتراک‌گذاری
+        btnShare.onclick = () => {
+            btnShare.innerHTML = '⏳ در حال آماده‌سازی...';
+            renderCanvas(canvas => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'AyandehStory.png', { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'فایل املاک',
+                            text: 'مشاهده فایل جدید املاک'
+                        }).then(() => {
+                            overlay.remove();
+                        }).catch((error) => {
+                            console.log('Error sharing', error);
+                            btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام / روبیکا';
+                        });
+                    } else {
+                        alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. عکس در گالری ذخیره می‌شود.');
+                        downloadCanvas(canvas);
+                    }
+                }, 'image/png');
+            });
+        };
+
+        // عملیات دانلود
+        btnDownload.onclick = () => {
+            btnDownload.innerHTML = '⏳ در حال ساخت...';
+            renderCanvas(canvas => {
+                downloadCanvas(canvas);
+            });
+        };
+
+        function downloadCanvas(canvas) {
+            const link = document.createElement('a');
+            link.download = 'AyandehStory.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            overlay.remove();
+        }
+    }
+});
+</script>
     
 </body>
                                                       </html>

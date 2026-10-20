@@ -2716,7 +2716,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         return match ? match[1].trim() : '';
                     };
 
-                    // جمع آوری اطلاعات
                     const data = {
                         type: getVal('نوع'),
                         deal: getVal('معامله'),
@@ -2739,23 +2738,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
-    // ۱. پنجره انتخاب آیتم‌ها
     function openSelector(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         
         let checkboxes = '';
         const addCheck = (id, label, isChecked = true, val = '') => {
-            if (!val) return; // اگه مقدار خالی بود نمایش نده
+            if (!val) return;
             checkboxes += `
             <label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;">
                 <input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;">
                 <span style="flex:1; font-weight:700;">${label}</span>
-                <span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${val}</span>
+                <span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span>
             </label>`;
         };
 
-        // اطلاعات ملک
         addCheck('chk-type', 'نوع و معامله', true, `${data.deal} ${data.type}`);
         addCheck('chk-code', 'کد ملک', true, data.code);
         addCheck('chk-area', 'متراژ', true, data.area);
@@ -2768,10 +2765,9 @@ document.addEventListener('DOMContentLoaded', function() {
         addCheck('chk-rahn', 'ودیعه', true, data.rahn);
         addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
 
-        // اطلاعات شما
         checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات تماس شما:</div>`;
         addCheck('chk-name', 'نام شما', true, 'رحمان قاسمی');
-        addCheck('chk-phone', 'شماره تماس', true, '0914 202 2898');
+        addCheck('chk-phone', 'شماره تماس', true, '۰۹۱۴۲۰۲۲۸۹۸');
         addCheck('chk-agency', 'نام آژانس', true, 'آینده‌ساز');
 
         ov.innerHTML = `
@@ -2793,10 +2789,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sel-close').onclick = () => ov.remove();
         
         document.getElementById('sel-continue').onclick = () => {
-            // ساخت متن بر اساس تیک‌های زده شده
-            let divarText = '';
-            const getChk = (id) => document.getElementById(id).checked;
+            const getChk = (id) => { const el = document.getElementById(id); return el ? el.checked : false; };
 
+            let divarText = '';
             if (getChk('chk-type')) divarText += `🏠 ${data.deal} ${data.type}\n`;
             if (getChk('chk-code') && data.code) divarText += `📋 کد ملک: ${data.code}\n`;
             if (getChk('chk-area') && data.area) divarText += `📐 متراژ: ${data.area}\n`;
@@ -2818,7 +2813,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // ۲. پنجره ساخت عکس
     function generateStory(divarText, showName, showPhone, showAgency) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
@@ -2827,9 +2821,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (showName || showPhone || showAgency) {
             footerHtml = `
             <div style="text-align:center; border-top: 2px solid #f1f5f9; padding-top:12px; margin-top:10px; background: #f8fafc; border-radius: 12px; padding-bottom: 12px;">
-                ${showName ? `<div style="font-size:15px; font-weight:900; color:#1e293b;">رحمان قاسمی</div>` : ''}
+                ${showName ? `<div style="font-size:16px; font-weight:900; color:#1e293b;">رحمان قاسمی</div>` : ''}
                 ${showAgency ? `<div style="font-size:11px; font-weight:600; color:#64748b; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size:17px; font-weight:900; color:#0F766E; direction:ltr; margin-top:6px; letter-spacing: 1px;">0914 202 2898</div>` : ''}
+                ${showPhone ? `<div style="font-size:16px; font-weight:900; color:#0F766E; margin-top:6px;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
 

@@ -2863,5 +2863,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+    <script>
+// کد نجات‌بخش: اجبار به نمایش هدر و فوتر در عکس استوری
+(function() {
+    const originalHtml2canvas = window.html2canvas;
+    if (!originalHtml2canvas) return;
+
+    window.html2canvas = function(element, options) {
+        options = options || {};
+        options.backgroundColor = '#ffffff'; // پس‌زمینه سفید
+        options.scale = 3; // کیفیت بالا
+
+        options.onclone = function(clonedDoc) {
+            const style = clonedDoc.createElement('style');
+            style.innerHTML = `
+                /* تبدیل اجباری چیدمان برای اینکه ابزار عکس‌گیری هدر و فوتر رو نادیده نگیره */
+                div[style*="flex-direction: column"] {
+                    display: block !important;
+                    position: relative !important;
+                    width: 1080px !important;
+                    height: 1920px !important;
+                    background: #ffffff !important;
+                }
+                div[style*="flex-shrink: 0"]:first-child {
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 150px !important;
+                }
+                div[style*="flex-shrink: 0"]:last-child {
+                    position: absolute !important;
+                    bottom: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 250px !important;
+                }
+                div[style*="flex: 1"] {
+                    position: absolute !important;
+                    top: 150px !important;
+                    bottom: 250px !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    padding: 60px !important;
+                    box-sizing: border-box !important;
+                    overflow: hidden !important;
+                }
+            `;
+            clonedDoc.head.appendChild(style);
+        };
+        return originalHtml2canvas(element, options);
+    };
+})();
+    </script>
 </body>
                                                       </html>

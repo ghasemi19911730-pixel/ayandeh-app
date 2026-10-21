@@ -2774,8 +2774,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.appendChild(ov);
         
         document.getElementById('sel-close').onclick = () => ov.remove();
+        
         document.getElementById('sel-continue').onclick = () => {
             const getChk = (id) => { const el = document.getElementById(id); return el ? el.checked : false; };
+            
+            // 👈 اول مقادیر تیک‌ها رو ذخیره میکنیم
+            const showHeader = getChk('chk-header');
+            const showName = getChk('chk-name');
+            const showPhone = getChk('chk-phone');
+
             let text = '';
             if (getChk('chk-type') && (data.deal || data.type)) text += `🏠 ${data.deal} ${data.type}\n`;
             if (getChk('chk-code') && data.code) text += `📋 کد ملک: ${data.code}\n`;
@@ -2790,46 +2797,40 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-rent') && data.rent) text += `💰 اجاره: ${data.rent}\n`;
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
-            ov.remove();
-            createFlexImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
+            ov.remove(); // 👈 حالا که مقادیر رو گرفتیم، پنجره رو می‌بندیم
+            
+            createFlexImage(text, showHeader, showName, showPhone);
         };
     }
 
-    // ۳. ساخت عکس (با استفاده از Absolute Positioning - ضد باگ)
+    // ۳. ساخت عکس (با چیدمان جدول - ۱۰۰٪ ضد باگ)
     function createFlexImage(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
         const storyBox = document.createElement('div');
-        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; border: 1px solid #e2e8f0; box-sizing: border-box;';
+        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; border: 1px solid #e2e8f0; box-sizing: border-box; direction: rtl; font-family: Vazirmatn, sans-serif;';
         
-        let html = '';
+        let html = `<table style="width: 100%; height: 100%; border-collapse: collapse; background-color: #ffffff; margin: 0; padding: 0;">
+            <tr>
+                <td style="height: 60px; background-color: #0F766E; color: #ffffff; text-align: center; font-size: 15px; font-weight: 900;">
+                    ${showHeader ? 'آژانس املاک آینده‌ساز 🏠' : ''}
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: top; padding: 20px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="height: 110px; background-color: #0F766E; color: #ffffff; text-align: center; vertical-align: middle;">
+                    ${showName ? `<div style="font-size: 17px; font-weight: 900;">رحمان قاسمی</div>` : ''}
+                    ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                    ${showPhone ? `<div style="font-size: 17px; font-weight: 900; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
+                </td>
+            </tr>
+        </table>`;
         
-        // هدر (چسبیده به بالا)
-        if (showHeader) {
-            html += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 60px; background-color: #0F766E !important; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white !important; z-index: 10;">
-                <span style="font-size: 15px; font-weight: 900;">آژانس املاک آینده‌ساز</span>
-                <span style="font-size: 20px;">🏠</span>
-            </div>`;
-        }
-
-        // متن (با پدینگ دقیق تا با هدر و فوتر تداخل نکند)
-        const topPad = showHeader ? 60 : 0;
-        const botPad = (showName || showPhone) ? 110 : 0;
-        
-        html += `<div style="position: absolute; top: ${topPad}px; bottom: ${botPad}px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
-        </div>`;
-
-        // فوتر (چسبیده به پایین)
-        if (showName || showPhone) {
-            html += `<div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background-color: #0F766E !important; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;">
-                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff !important;">رحمان قاسمی</div>` : ''}
-                ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1 !important; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff !important; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
-            </div>`;
-        }
-
         storyBox.innerHTML = html;
 
         const btnShare = document.createElement('button');
@@ -2859,9 +2860,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     backgroundColor: '#ffffff', 
                     useCORS: true,
                     scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 340,
-                    windowHeight: 604
+                    scrollY: 0
                 }).then(canvas => { 
                     callback(canvas); 
                 }).catch(err => { 
@@ -2901,6 +2900,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 })();
 </script>
-            
   </body>
                                                       </html>

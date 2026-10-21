@@ -2685,14 +2685,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
     </script>
-    <!-- کتابخانه ساخت عکس -->
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- کتابخانه جدید ساخت عکس (جایگزین html2canvas) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
 <script>
 (function() {
+    // ۱. ساخت دکمه
     setInterval(() => {
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#final-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#god-story-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2700,9 +2701,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'final-btn';
-                btn.innerHTML = '📸 ساخت استوری (رنگی)';
-                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:#833AB4; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; z-index: 99999;';
+                btn.id = 'god-story-btn';
+                btn.innerHTML = '✨ ساخت استوری (رنگی)';
+                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
                     e.stopPropagation();
@@ -2733,13 +2734,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
+    // ۲. منوی انتخاب
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         let checkboxes = '';
         const addCheck = (id, label, isChecked = true, val = '') => {
             if (!val) return;
-            checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
+            checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
         };
         
         addCheck('chk-header', 'نوار رنگی آژانس (بالا)', true, 'آژانس املاک');
@@ -2781,53 +2783,54 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
             ov.remove();
-            makeImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
+            createFinalStory(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
         };
     }
 
-    function makeImage(text, showHeader, showName, showPhone) {
+    // ۳. ساخت و دانلود عکس با کتابخانه جدید
+    function createFinalStory(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
-        const box = document.createElement('div');
-        box.style.cssText = 'width: 340px; height: 604px; background: #ffffff; border-radius: 16px; overflow: hidden; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+        const storyBox = document.createElement('div');
+        // چیدمان Flexbox استاندارد (کتابخانه جدید کاملاً ازش پشتیبانی میکنه)
+        storyBox.style.cssText = 'width: 360px; height: 640px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #e2e8f0;';
         
         let html = '';
-        let hH = showHeader ? 70 : 0;
-        let fH = (showName || showPhone) ? 110 : 0;
-        let bH = 604 - hH - fH;
-
         if (showHeader) {
-            html += `<div style="width: 100%; height: 70px; background: #0F766E; color: #fff; text-align: center; line-height: 70px; font-size: 18px; font-weight: 900;">آژانس املاک آینده‌ساز</div>`;
+            html += `<div style="height: 70px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white; flex-shrink: 0;">
+                <span style="font-size: 16px; font-weight: 900;">آژانس املاک آینده‌ساز</span>
+                <span style="font-size: 22px;">🏠</span>
+            </div>`;
         }
 
-        html += `<div style="width: 100%; height: ${bH}px; padding: 20px; box-sizing: border-box; overflow: hidden; background: #fff;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+        html += `<div style="flex: 1; padding: 20px; box-sizing: border-box; background: #ffffff; overflow: hidden;">
+            <div style="font-size: 14px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
         </div>`;
 
-        if (fH > 0) {
-            html += `<div style="width: 100%; height: 110px; background: #0F766E; color: #fff; text-align: center; padding-top: 15px; box-sizing: border-box;">
+        if (showName || showPhone) {
+            html += `<div style="height: 110px; background: linear-gradient(135deg, #0F766E, #10B981); color: white; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0;">
                 ${showName ? `<div style="font-size: 18px; font-weight: 900;">رحمان قاسمی</div>` : ''}
                 ${showName ? `<div style="font-size: 12px; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
                 ${showPhone ? `<div style="font-size: 18px; font-weight: 900; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
 
-        box.innerHTML = html;
+        storyBox.innerHTML = html;
 
         const btnDownload = document.createElement('button');
         btnDownload.innerHTML = '⬇️ دانلود در گالری';
-        btnDownload.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
+        btnDownload.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:360px; cursor:pointer;';
         
         const btnShare = document.createElement('button');
-        btnShare.innerHTML = '📤 اشتراک‌گذاری';
-        btnShare.style.cssText = 'margin-top:10px; padding:15px 20px; background:#833AB4; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
+        btnShare.innerHTML = '📤 اشتراک‌گذاری (واتساپ/اینستاگرام)';
+        btnShare.style.cssText = 'margin-top:10px; padding:15px 20px; background:linear-gradient(135deg, #E1306C, #833AB4); color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:360px; cursor:pointer;';
 
         const btnClose = document.createElement('button');
         btnClose.innerHTML = '✕ بستن';
         btnClose.style.cssText = 'margin-top:10px; padding:10px; background:transparent; color:#9ca3af; border:none; cursor:pointer;';
         
-        overlay.appendChild(box);
+        overlay.appendChild(storyBox);
         overlay.appendChild(btnDownload);
         overlay.appendChild(btnShare);
         overlay.appendChild(btnClose);
@@ -2835,34 +2838,37 @@ document.addEventListener('DOMContentLoaded', function() {
         
         btnClose.onclick = () => overlay.remove();
 
-        function capture(cb) {
+        function generateImage(cb) {
+            // استفاده از کتابخانه جدید html-to-image
             setTimeout(() => { 
-                html2canvas(box, { scale: 3, backgroundColor: '#ffffff', useCORS: true })
+                htmlToImage.toPng(storyBox, { pixelRatio: 3 })
                 .then(canvas => cb(canvas))
-                .catch(err => alert('خطا در ساخت عکس.'));
+                .catch(err => {
+                    alert('خطا در ساخت عکس: ' + err.message);
+                });
             }, 300);
         }
 
         btnDownload.onclick = () => {
-            btnDownload.innerHTML = '⏳ ...';
-            capture(canvas => {
-                const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/png');
-                a.download = 'Story.png';
-                a.click();
+            btnDownload.innerHTML = '⏳ در حال ساخت...';
+            generateImage(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Story.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
                 btnDownload.innerHTML = '⬇️ دانلود در گالری';
             });
         };
 
         btnShare.onclick = () => {
-            btnShare.innerHTML = '⏳ ...';
-            capture(canvas => {
+            btnShare.innerHTML = '⏳ در حال آماده‌سازی...';
+            generateImage(canvas => {
                 canvas.toBlob(blob => {
                     const file = new File([blob], 'Story.png', { type: 'image/png' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'فایل املاک' }).catch(()=>{});
+                        navigator.share({ files: [file], title: 'فایل املاک' }).catch(() => { btnShare.innerHTML = '📤 اشتراک‌گذاری (واتساپ/اینستاگرام)'; });
                     } else {
-                        alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. از دکمه دانلود استفاده کنید.');
+                        alert('گوشی شما از اشتراک‌گذاری مستقیم پشتیبانی نمی‌کند. از دکمه دانلود استفاده کنید.');
                         btnDownload.click();
                     }
                 }, 'image/png');
@@ -2870,6 +2876,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 })();
-</script>        
-</body>
+</script>
+  </body>
                                                       </html>

@@ -2690,14 +2690,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
-    // ۱. ساخت دکمه
     setInterval(() => {
-        document.querySelectorAll('button').forEach(b => {
-            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'block-story-btn') b.remove();
-        });
-
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#block-story-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#final-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2705,21 +2700,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'block-story-btn';
+                btn.id = 'final-btn';
                 btn.innerHTML = '📸 ساخت استوری (رنگی)';
-                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
+                btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:#833AB4; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const bodyText = modal.querySelector('#detail-body').innerText;
                     const getVal = (label) => {
                         const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
-                        const blacklist = ['عنوان','کد','نقش','دسته','نوع','معامله','محدوده','آدرس','متراژ','خواب','طبقه','کل طبقات','واحد در طبقه','سال ساخت','موقعیت','پارکینگ','قیمت کل','هر متر','امکانات','نام مالک','نوع سند','وضعیت','تاریخ ثبت','توضیحات','ودیعه','اجاره','اجاره ماهانه'];
                         for (let i = 0; i < lines.length; i++) {
-                            if (lines[i] === label) {
-                                let next = lines[i + 1];
-                                if (next && !blacklist.includes(next) && !next.includes('کد:')) return next;
-                                return '';
+                            if (lines[i].replace(/[:\-]/g, '').trim() === label) { 
+                                if (i + 1 < lines.length) return lines[i + 1]; 
                             }
                         }
                         return '';
@@ -2741,17 +2733,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
-    // ۲. منوی انتخاب
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
         let checkboxes = '';
         const addCheck = (id, label, isChecked = true, val = '') => {
             if (!val) return;
-            checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
+            checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
         };
         
-        // انتخاب هدر و فوتر
         addCheck('chk-header', 'نوار رنگی آژانس (بالا)', true, 'آژانس املاک');
         addCheck('chk-name', 'نام شما (در فوتر)', true, 'رحمان قاسمی');
         addCheck('chk-phone', 'شماره تماس (در فوتر)', true, '۰۹۱۴۲۰۲۲۸۹۸');
@@ -2791,129 +2781,95 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
             ov.remove();
-            createImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
+            makeImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
         };
     }
 
-    // ۳. ساخت عکس (روش ساده و ضدگلوله Block)
-    function createImage(text, showHeader, showName, showPhone) {
+    function makeImage(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
         const box = document.createElement('div');
-        box.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: block;';
+        box.style.cssText = 'width: 340px; height: 604px; background: #ffffff; border-radius: 16px; overflow: hidden; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
         
         let html = '';
-        let hHeight = 0;
-        let fHeight = 0;
+        let hH = showHeader ? 70 : 0;
+        let fH = (showName || showPhone) ? 110 : 0;
+        let bH = 604 - hH - fH;
 
-        // هدر
         if (showHeader) {
-            hHeight = 60;
-            html += `<div style="height: 60px; width: 100%; background: linear-gradient(135deg, #0F766E, #10B981); color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; font-size: 15px; font-weight: 900;">
-                <span>آژانس املاک آینده‌ساز</span>
-                <span>🏠</span>
-            </div>`;
+            html += `<div style="width: 100%; height: 70px; background: #0F766E; color: #fff; text-align: center; line-height: 70px; font-size: 18px; font-weight: 900;">آژانس املاک آینده‌ساز</div>`;
         }
 
-        // فوتر
-        if (showName || showPhone) {
-            fHeight = 110;
-            // چون نمیتونیم فوتر رو بعد از بدنه بذاریم، مجبوریم از absolute استفاده کنیم
-            // ولی اینبار absolute رو به بدنه میدیم که فوتر رو له نکنه
-        }
-
-        const bodyHeight = 604 - hHeight - fHeight;
-
-        // بدنه (متن)
-        html += `<div style="height: ${bodyHeight}px; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+        html += `<div style="width: 100%; height: ${bH}px; padding: 20px; box-sizing: border-box; overflow: hidden; background: #fff;">
+            <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
         </div>`;
 
-        // فوتر (با absolute چسبیده به پایین)
-        if (fHeight > 0) {
-            html += `<div style="height: 110px; width: 100%; background: linear-gradient(135deg, #0F766E, #10B981); text-align: center; padding-top: 15px; box-sizing: border-box; position: relative; margin-top: -1px;">
-                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff;">رحمان قاسمی</div>` : ''}
-                ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
+        if (fH > 0) {
+            html += `<div style="width: 100%; height: 110px; background: #0F766E; color: #fff; text-align: center; padding-top: 15px; box-sizing: border-box;">
+                ${showName ? `<div style="font-size: 18px; font-weight: 900;">رحمان قاسمی</div>` : ''}
+                ${showName ? `<div style="font-size: 12px; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                ${showPhone ? `<div style="font-size: 18px; font-weight: 900; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
 
         box.innerHTML = html;
 
-        const btnShare = document.createElement('button');
-        btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام';
-        btnShare.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);';
-        
         const btnDownload = document.createElement('button');
         btnDownload.innerHTML = '⬇️ دانلود در گالری';
-        btnDownload.style.cssText = 'margin-top:10px; padding:15px 20px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
+        btnDownload.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
+        
+        const btnShare = document.createElement('button');
+        btnShare.innerHTML = '📤 اشتراک‌گذاری';
+        btnShare.style.cssText = 'margin-top:10px; padding:15px 20px; background:#833AB4; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer;';
 
         const btnClose = document.createElement('button');
         btnClose.innerHTML = '✕ بستن';
-        btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; font-size:14px; cursor:pointer;';
+        btnClose.style.cssText = 'margin-top:10px; padding:10px; background:transparent; color:#9ca3af; border:none; cursor:pointer;';
         
         overlay.appendChild(box);
-        overlay.appendChild(btnShare);
         overlay.appendChild(btnDownload);
+        overlay.appendChild(btnShare);
         overlay.appendChild(btnClose);
         document.body.appendChild(overlay);
         
         btnClose.onclick = () => overlay.remove();
-        
-        function processCanvas(callback) {
+
+        function capture(cb) {
             setTimeout(() => { 
-                // اینبار با onclone به زور استایل‌ها رو بهش تزریق میکنیم تا خرابکاری نکنه
-                html2canvas(box, { 
-                    scale: 3.2, 
-                    backgroundColor: '#ffffff', 
-                    useCORS: true,
-                    onclone: (clonedDoc) => {
-                        const clonedBox = clonedDoc.querySelector('div[style*="width: 340px"]');
-                        if(clonedBox) {
-                            clonedBox.style.width = '340px';
-                            clonedBox.style.height = '604px';
-                            clonedBox.style.display = 'block';
-                        }
-                    }
-                }).then(canvas => { 
-                    callback(canvas); 
-                }).catch(err => { 
-                    alert('خطا در ساخت عکس.'); 
-                }); 
+                html2canvas(box, { scale: 3, backgroundColor: '#ffffff', useCORS: true })
+                .then(canvas => cb(canvas))
+                .catch(err => alert('خطا در ساخت عکس.'));
             }, 300);
         }
-        
+
+        btnDownload.onclick = () => {
+            btnDownload.innerHTML = '⏳ ...';
+            capture(canvas => {
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'Story.png';
+                a.click();
+                btnDownload.innerHTML = '⬇️ دانلود در گالری';
+            });
+        };
+
         btnShare.onclick = () => {
-            btnShare.innerHTML = '⏳ در حال آماده‌سازی...';
-            processCanvas(canvas => {
+            btnShare.innerHTML = '⏳ ...';
+            capture(canvas => {
                 canvas.toBlob(blob => {
-                    const file = new File([blob], 'AyandehStory.png', { type: 'image/png' });
+                    const file = new File([blob], 'Story.png', { type: 'image/png' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'فایل املاک', text: 'مشاهده فایل جدید املاک' }).then(() => overlay.remove()).catch(() => { btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام'; });
-                    } else { 
-                        alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. عکس ذخیره می‌شود.');
-                        downloadCanvas(canvas); 
+                        navigator.share({ files: [file], title: 'فایل املاک' }).catch(()=>{});
+                    } else {
+                        alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. از دکمه دانلود استفاده کنید.');
+                        btnDownload.click();
                     }
                 }, 'image/png');
             });
         };
-        
-        btnDownload.onclick = () => { 
-            btnDownload.innerHTML = '⏳ در حال ساخت...'; 
-            processCanvas(canvas => downloadCanvas(canvas)); 
-        };
-        
-        function downloadCanvas(canvas) {
-            const link = document.createElement('a');
-            link.download = 'AyandehStory.png'; 
-            link.href = canvas.toDataURL('image/png'); 
-            link.click(); 
-            overlay.remove();
-        }
     }
 })();
-</script>
-        
+</script>        
 </body>
                                                       </html>

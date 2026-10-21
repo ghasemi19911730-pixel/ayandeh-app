@@ -2693,11 +2693,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // ۱. ساخت دکمه
     setInterval(() => {
         document.querySelectorAll('button').forEach(b => {
-            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'colorful-story-btn') b.remove();
+            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'block-story-btn') b.remove();
         });
 
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#colorful-story-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#block-story-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2705,14 +2705,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'colorful-story-btn';
+                btn.id = 'block-story-btn';
                 btn.innerHTML = '📸 ساخت استوری (رنگی)';
                 btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const bodyText = modal.querySelector('#detail-body').innerText;
-                    
                     const getVal = (label) => {
                         const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l !== '');
                         const blacklist = ['عنوان','کد','نقش','دسته','نوع','معامله','محدوده','آدرس','متراژ','خواب','طبقه','کل طبقات','واحد در طبقه','سال ساخت','موقعیت','پارکینگ','قیمت کل','هر متر','امکانات','نام مالک','نوع سند','وضعیت','تاریخ ثبت','توضیحات','ودیعه','اجاره','اجاره ماهانه'];
@@ -2742,7 +2741,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
-    // ۲. منوی انتخاب فیلدها
+    // ۲. منوی انتخاب
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
@@ -2752,8 +2751,8 @@ document.addEventListener('DOMContentLoaded', function() {
             checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
         };
         
-        // ---> بخش هدر و فوتر (انتخابی) <---
-        addCheck('chk-header', 'نوار بالای استوری (آژانس)', true, 'آژانس املاک');
+        // انتخاب هدر و فوتر
+        addCheck('chk-header', 'نوار رنگی آژانس (بالا)', true, 'آژانس املاک');
         addCheck('chk-name', 'نام شما (در فوتر)', true, 'رحمان قاسمی');
         addCheck('chk-phone', 'شماره تماس (در فوتر)', true, '۰۹۱۴۲۰۲۲۸۹۸');
         
@@ -2792,54 +2791,55 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
             ov.remove();
-            // ارسال انتخاب‌ها به تابع ساخت عکس
-            createColorfulImage(
-                text, 
-                getChk('chk-header'), 
-                getChk('chk-name'), 
-                getChk('chk-phone')
-            );
+            createImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
         };
     }
 
-    // ۳. ساخت عکس نهایی رنگی
-    function createColorfulImage(text, showHeader, showName, showPhone) {
+    // ۳. ساخت عکس (روش ساده و ضدگلوله Block)
+    function createImage(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
-        // کادر استوری
-        const storyBox = document.createElement('div');
-        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; display: block;';
+        const box = document.createElement('div');
+        box.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: block;';
         
         let html = '';
-        
-        // هدر رنگی
-        let topPad = 0;
+        let hHeight = 0;
+        let fHeight = 0;
+
+        // هدر
         if (showHeader) {
-            topPad = 60;
-            html += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white; z-index: 10;">
-                <div style="font-size:15px; font-weight:900;">آژانس املاک آینده‌ساز</div>
-                <div style="font-size:20px;">🏠</div>
+            hHeight = 60;
+            html += `<div style="height: 60px; width: 100%; background: linear-gradient(135deg, #0F766E, #10B981); color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; font-size: 15px; font-weight: 900;">
+                <span>آژانس املاک آینده‌ساز</span>
+                <span>🏠</span>
             </div>`;
         }
 
-        // فوتر رنگی
-        let botPad = 0;
+        // فوتر
         if (showName || showPhone) {
-            botPad = 110;
-            html += `<div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background: linear-gradient(135deg, #0F766E, #10B981); text-align: center; box-sizing: border-box; padding-top: 12px; z-index: 10;">
+            fHeight = 110;
+            // چون نمیتونیم فوتر رو بعد از بدنه بذاریم، مجبوریم از absolute استفاده کنیم
+            // ولی اینبار absolute رو به بدنه میدیم که فوتر رو له نکنه
+        }
+
+        const bodyHeight = 604 - hHeight - fHeight;
+
+        // بدنه (متن)
+        html += `<div style="height: ${bodyHeight}px; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden;">
+            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+        </div>`;
+
+        // فوتر (با absolute چسبیده به پایین)
+        if (fHeight > 0) {
+            html += `<div style="height: 110px; width: 100%; background: linear-gradient(135deg, #0F766E, #10B981); text-align: center; padding-top: 15px; box-sizing: border-box; position: relative; margin-top: -1px;">
                 ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff;">رحمان قاسمی</div>` : ''}
                 ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
                 ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
 
-        // بدنه (متن)
-        html += `<div style="position: absolute; top: ${topPad}px; bottom: ${botPad}px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden; z-index: 5;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
-        </div>`;
-
-        storyBox.innerHTML = html;
+        box.innerHTML = html;
 
         const btnShare = document.createElement('button');
         btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام';
@@ -2853,7 +2853,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnClose.innerHTML = '✕ بستن';
         btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; font-size:14px; cursor:pointer;';
         
-        overlay.appendChild(storyBox);
+        overlay.appendChild(box);
         overlay.appendChild(btnShare);
         overlay.appendChild(btnDownload);
         overlay.appendChild(btnClose);
@@ -2863,10 +2863,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         function processCanvas(callback) {
             setTimeout(() => { 
-                html2canvas(storyBox, { 
+                // اینبار با onclone به زور استایل‌ها رو بهش تزریق میکنیم تا خرابکاری نکنه
+                html2canvas(box, { 
                     scale: 3.2, 
                     backgroundColor: '#ffffff', 
-                    useCORS: true
+                    useCORS: true,
+                    onclone: (clonedDoc) => {
+                        const clonedBox = clonedDoc.querySelector('div[style*="width: 340px"]');
+                        if(clonedBox) {
+                            clonedBox.style.width = '340px';
+                            clonedBox.style.height = '604px';
+                            clonedBox.style.display = 'block';
+                        }
+                    }
                 }).then(canvas => { 
                     callback(canvas); 
                 }).catch(err => { 

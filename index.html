@@ -2706,7 +2706,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (diyarBtn) {
                 const btn = document.createElement('button');
                 btn.id = 'perfect-flex-btn';
-                btn.innerHTML = '📸 ساخت استوری (رنگی و انتخابی)';
+                btn.innerHTML = '📸 ساخت استوری (انتخاب مدل)';
                 btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
@@ -2746,6 +2746,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
+        
+        // 👈 منوی انتخاب تم (مدل)
+        let themeSelector = `
+        <div style="background:#f8fafc; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #e2e8f0;">
+            <label style="font-weight:bold; color:#0F766E; font-size:14px; display:block; margin-bottom:5px;">🎨 مدل استوری را انتخاب کنید:</label>
+            <select id="chk-theme" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-family:inherit; font-size:14px; outline:none; background:#fff;">
+                <option value="classic">سبز زمردی (کلاسیک)</option>
+                <option value="glass">شیشه‌ای (لوکس)</option>
+                <option value="dark">تاریک (شب با نوشته طلایی)</option>
+                <option value="cream">کرم (مینیمال)</option>
+            </select>
+        </div>`;
+
         let checkboxes = '';
         const addCheck = (id, label, isChecked = true, val = '') => {
             if (!val) return;
@@ -2754,7 +2767,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         addCheck('chk-header', 'نوار رنگی آژانس (بالا)', true, 'آژانس املاک');
         addCheck('chk-name', 'نام شما (در فوتر)', true, 'رحمان قاسمی');
-        addCheck('chk-agency', 'عنوان شغلی (زیر اسم)', true, 'مشاور املاک آینده‌ساز'); // 👈 تیک جدید
+        addCheck('chk-agency', 'عنوان شغلی (زیر اسم)', true, 'مشاور املاک آینده‌ساز');
         addCheck('chk-phone', 'شماره تماس (در فوتر)', true, '۰۹۱۴۲۰۲۲۸۹۸');
         
         checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات ملک:</div>`;
@@ -2771,7 +2784,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
         addCheck('chk-desc', 'توضیحات', true, data.desc);
         
-        ov.innerHTML = `<div style="background:#fff; border-radius:20px; width:100%; max-width:400px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="padding:20px; border-bottom:2px solid #0F766E; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:16px; font-weight:900; color:#0F766E;">انتخاب موارد استوری</div><button id="sel-close" style="background:#fee2e2; border:none; width:30px; height:30px; border-radius:50%; color:#dc2626; cursor:pointer;">✕</button></div><div style="padding:10px; overflow-y:auto; flex:1;">${checkboxes}</div><div style="padding:15px; border-top:1px solid #f1f5f9;"><button id="sel-continue" style="width:100%; padding:14px; background:#0F766E; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; font-size:15px; cursor:pointer;">ساخت پیش‌نمایش عکس</button></div></div>`;
+        ov.innerHTML = `<div style="background:#fff; border-radius:20px; width:100%; max-width:400px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="padding:20px; border-bottom:2px solid #0F766E; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:16px; font-weight:900; color:#0F766E;">انتخاب موارد استوری</div><button id="sel-close" style="background:#fee2e2; border:none; width:30px; height:30px; border-radius:50%; color:#dc2626; cursor:pointer;">✕</button></div><div style="padding:10px; overflow-y:auto; flex:1;">${themeSelector}${checkboxes}</div><div style="padding:15px; border-top:1px solid #f1f5f9;"><button id="sel-continue" style="width:100%; padding:14px; background:#0F766E; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; font-size:15px; cursor:pointer;">ساخت پیش‌نمایش عکس</button></div></div>`;
         document.body.appendChild(ov);
         
         document.getElementById('sel-close').onclick = () => ov.remove();
@@ -2781,8 +2794,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const showHeader = getChk('chk-header');
             const showName = getChk('chk-name');
-            const showAgency = getChk('chk-agency'); // 👈 گرفتن وضعیت تیک جدید
+            const showAgency = getChk('chk-agency');
             const showPhone = getChk('chk-phone');
+            const selectedTheme = document.getElementById('chk-theme').value; // 👈 گرفتن تم انتخابی
 
             let text = '';
             if (getChk('chk-type') && (data.deal || data.type)) text += `🏠 ${data.deal} ${data.type}\n`;
@@ -2799,35 +2813,70 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
             ov.remove();
-            
-            // 👈 اضافه کردن showAgency به تابع ساخت عکس
-            createFlexImage(text, showHeader, showName, showAgency, showPhone);
+            createFlexImage(text, showHeader, showName, showAgency, showPhone, selectedTheme);
         };
     }
 
-    // ۳. ساخت عکس 
-    function createFlexImage(text, showHeader, showName, showAgency, showPhone) { // 👈 پارامتر جدید
+    // ۳. ساخت عکس بر اساس تم انتخابی
+    function createFlexImage(text, showHeader, showName, showAgency, showPhone, theme) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
         const storyBox = document.createElement('div');
-        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; border: 1px solid #e2e8f0; box-sizing: border-box; direction: rtl; font-family: Vazirmatn, sans-serif;';
         
-        let html = `<table style="width: 100%; height: 100%; border-collapse: collapse; background-color: #ffffff; margin: 0; padding: 0;">
+        // متغیرهای رنگی بر اساس تم
+        let bgMain = '#ffffff';
+        let bgHeaderFooter = '#0F766E';
+        let colorHeaderFooter = '#ffffff';
+        let colorText = '#334155';
+        let borderStyle = 'none';
+        let shadowStyle = '0 20px 50px rgba(0,0,0,0.5)';
+        let containerPadding = '0';
+        
+        if (theme === 'classic') {
+            bgMain = '#ffffff';
+            bgHeaderFooter = '#0F766E';
+            colorHeaderFooter = '#ffffff';
+            colorText = '#334155';
+        } else if (theme === 'glass') {
+            bgMain = 'rgba(255, 255, 255, 0.88)';
+            bgHeaderFooter = 'rgba(15, 118, 110, 0.85)';
+            colorHeaderFooter = '#ffffff';
+            colorText = '#1e293b';
+            borderStyle = '1px solid rgba(255, 255, 255, 0.6)';
+            containerPadding = '12px';
+            storyBox.style.background = 'linear-gradient(135deg, #0F766E, #10B981)'; // پس زمینه گرادیانت
+        } else if (theme === 'dark') {
+            bgMain = '#1e293b';
+            bgHeaderFooter = '#0f172a';
+            colorHeaderFooter = '#eab308'; // طلایی
+            colorText = '#f8fafc'; // سفید
+            borderStyle = '1px solid #334155';
+        } else if (theme === 'cream') {
+            bgMain = '#fdfbf7';
+            bgHeaderFooter = '#0F766E';
+            colorHeaderFooter = '#ffffff';
+            colorText = '#451a03';
+            borderStyle = '1px solid #e7e5e4';
+        }
+
+        storyBox.style.cssText = `width: 340px; height: 604px; border-radius: 16px; overflow: hidden; box-shadow: ${shadowStyle}; position: relative; box-sizing: border-box; padding: ${containerPadding}; direction: rtl; font-family: Vazirmatn, sans-serif; ${theme === 'glass' ? 'background: linear-gradient(135deg, #0F766E, #10B981);' : `background-color: ${bgMain}; border: ${borderStyle};`}`;
+        
+        let html = `<table style="width: 100%; height: 100%; border-collapse: collapse; background-color: ${theme === 'glass' ? 'rgba(255, 255, 255, 0.88)' : bgMain}; border-radius: ${theme === 'glass' ? '12px' : '0'}; overflow: hidden; border: ${theme === 'glass' ? '1px solid rgba(255, 255, 255, 0.6)' : 'none'};">
             <tr>
-                <td style="height: 60px; background-color: #0F766E; color: #ffffff; text-align: center; font-size: 15px; font-weight: 900;">
+                <td style="height: 60px; background-color: ${bgHeaderFooter}; color: ${colorHeaderFooter}; text-align: center; font-size: 15px; font-weight: 900; ${theme === 'dark' ? 'border-bottom: 2px solid #eab308;' : ''}">
                     ${showHeader ? 'آژانس املاک آینده‌ساز 🏠' : ''}
                 </td>
             </tr>
             <tr>
                 <td style="vertical-align: top; padding: 20px;">
-                    <div style="font-size: 13px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${colorText}; line-height: 2.2; white-space: pre-wrap;">${text}</div>
                 </td>
             </tr>
             <tr>
-                <td style="height: 110px; background-color: #0F766E; color: #ffffff; text-align: center; vertical-align: middle;">
+                <td style="height: 110px; background-color: ${bgHeaderFooter}; color: ${colorHeaderFooter}; text-align: center; vertical-align: middle; ${theme === 'dark' ? 'border-top: 2px solid #eab308;' : ''}">
                     ${showName ? `<div style="font-size: 17px; font-weight: 900;">رحمان قاسمی</div>` : ''}
-                    ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''} <!-- 👈 شرط جدید -->
+                    ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: ${theme === 'dark' ? '#ca8a04' : (theme === 'cream' ? '#ccfbf1' : '#ccfbf1')}; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
                     ${showPhone ? `<div style="font-size: 17px; font-weight: 900; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
                 </td>
             </tr>
@@ -2859,7 +2908,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => { 
                 html2canvas(storyBox, { 
                     scale: 2, 
-                    backgroundColor: '#ffffff', 
+                    backgroundColor: null, // برای اینکه شفافیت تم شیشه ای حفظ بشه
                     useCORS: true,
                     scrollX: 0,
                     scrollY: 0

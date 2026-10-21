@@ -2690,17 +2690,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
-    // ۱. پاکسازی دکمه‌های تکراری
+    // ۱. ساخت دکمه
     setInterval(() => {
         document.querySelectorAll('button').forEach(b => {
-            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'perfect-flex-btn') {
-                b.remove();
-            }
+            if (b.textContent && b.textContent.includes('استوری') && b.id !== 'colorful-story-btn') b.remove();
         });
 
-        // ۲. ساخت دکمه
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#perfect-flex-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#colorful-story-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2708,8 +2705,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'perfect-flex-btn';
-                btn.innerHTML = '📸 ساخت استوری (عالی)';
+                btn.id = 'colorful-story-btn';
+                btn.innerHTML = '📸 ساخت استوری (رنگی)';
                 btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
@@ -2745,7 +2742,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
-    // ۳. منوی انتخاب فیلدها
+    // ۲. منوی انتخاب فیلدها
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
@@ -2754,7 +2751,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!val) return;
             checkboxes += `<label style="display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #f1f5f9; cursor:pointer; color:#1e293b; font-size:14px;"><input type="checkbox" id="${id}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:#0F766E;"><span style="flex:1; font-weight:700;">${label}</span><span style="font-size:12px; color:#64748b; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${val}</span></label>`;
         };
-        addCheck('chk-header', 'لوگوی بالای استوری', true, 'آژانس املاک آینده‌ساز');
+        
+        // ---> بخش هدر و فوتر (انتخابی) <---
+        addCheck('chk-header', 'نوار بالای استوری (آژانس)', true, 'آژانس املاک');
+        addCheck('chk-name', 'نام شما (در فوتر)', true, 'رحمان قاسمی');
+        addCheck('chk-phone', 'شماره تماس (در فوتر)', true, '۰۹۱۴۲۰۲۲۸۹۸');
+        
+        checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات ملک:</div>`;
         addCheck('chk-type', 'نوع و معامله', true, `${data.deal} ${data.type}`);
         addCheck('chk-code', 'کد ملک', true, data.code);
         addCheck('chk-area', 'متراژ', true, data.area);
@@ -2767,11 +2770,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addCheck('chk-rahn', 'ودیعه', true, data.rahn);
         addCheck('chk-rent', 'اجاره ماهانه', true, data.rent);
         addCheck('chk-desc', 'توضیحات', true, data.desc);
-        
-        checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات تماس شما:</div>`;
-        addCheck('chk-name', 'نام شما', true, 'رحمان قاسمی');
-        addCheck('chk-phone', 'شماره تماس', true, '۰۹۱۴۲۰۲۲۸۹۸');
-        addCheck('chk-agency', 'عنوان شغلی (پایین)', true, 'مشاور املاک آینده‌ساز');
         
         ov.innerHTML = `<div style="background:#fff; border-radius:20px; width:100%; max-width:400px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="padding:20px; border-bottom:2px solid #0F766E; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:16px; font-weight:900; color:#0F766E;">انتخاب موارد استوری</div><button id="sel-close" style="background:#fee2e2; border:none; width:30px; height:30px; border-radius:50%; color:#dc2626; cursor:pointer;">✕</button></div><div style="padding:10px; overflow-y:auto; flex:1;">${checkboxes}</div><div style="padding:15px; border-top:1px solid #f1f5f9;"><button id="sel-continue" style="width:100%; padding:14px; background:#0F766E; color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; font-size:15px; cursor:pointer;">ساخت پیش‌نمایش عکس</button></div></div>`;
         document.body.appendChild(ov);
@@ -2792,39 +2790,54 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-rahn') && data.rahn) text += `💰 ودیعه: ${data.rahn}\n`;
             if (getChk('chk-rent') && data.rent) text += `💰 اجاره: ${data.rent}\n`;
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
+            
             ov.remove();
-            createPerfectImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'), getChk('chk-agency'));
+            // ارسال انتخاب‌ها به تابع ساخت عکس
+            createColorfulImage(
+                text, 
+                getChk('chk-header'), 
+                getChk('chk-name'), 
+                getChk('chk-phone')
+            );
         };
     }
 
-    // ۴. ساخت عکس نهایی (دقیقاً همون چیزی که عالی بود)
-    function createPerfectImage(text, showHeader, showName, showPhone, showAgency) {
+    // ۳. ساخت عکس نهایی رنگی
+    function createColorfulImage(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
-        // کادر استوری با چیدمان Flexbox
+        // کادر استوری
         const storyBox = document.createElement('div');
-        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #e2e8f0;';
+        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; display: block;';
         
         let html = '';
+        
+        // هدر رنگی
+        let topPad = 0;
         if (showHeader) {
-            html += `<div style="flex-shrink: 0; height: 60px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white; z-index: 10;">
+            topPad = 60;
+            html += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white; z-index: 10;">
                 <div style="font-size:15px; font-weight:900;">آژانس املاک آینده‌ساز</div>
                 <div style="font-size:20px;">🏠</div>
             </div>`;
         }
 
-        html += `<div style="flex: 1; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden; z-index: 5;">
-            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
-        </div>`;
-
-        if (showName || showPhone || showAgency) {
-            html += `<div style="flex-shrink: 0; height: 110px; background-color: #f8fafc !important; border-top: 2px solid #f1f5f9; text-align: center; box-sizing: border-box; padding-top: 12px; z-index: 10;">
-                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #1e293b !important;">رحمان قاسمی</div>` : ''}
-                ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: #64748b !important; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #0F766E !important; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
+        // فوتر رنگی
+        let botPad = 0;
+        if (showName || showPhone) {
+            botPad = 110;
+            html += `<div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background: linear-gradient(135deg, #0F766E, #10B981); text-align: center; box-sizing: border-box; padding-top: 12px; z-index: 10;">
+                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff;">رحمان قاسمی</div>` : ''}
+                ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
+
+        // بدنه (متن)
+        html += `<div style="position: absolute; top: ${topPad}px; bottom: ${botPad}px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden; z-index: 5;">
+            <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
+        </div>`;
 
         storyBox.innerHTML = html;
 
@@ -2849,7 +2862,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnClose.onclick = () => overlay.remove();
         
         function processCanvas(callback) {
-            // گرفتن عکس با کیفیت بالا (بدون هاله خاکستری)
             setTimeout(() => { 
                 html2canvas(storyBox, { 
                     scale: 3.2, 

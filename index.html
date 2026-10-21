@@ -2795,34 +2795,38 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // ۳. ساخت عکس (اصلاح شده)
+    // ۳. ساخت عکس (با استفاده از Absolute Positioning - ضد باگ)
     function createFlexImage(text, showHeader, showName, showPhone) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
         const storyBox = document.createElement('div');
-        // پس زمینه سفید و ابعاد دقیق
-        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #e2e8f0;';
+        storyBox.style.cssText = 'width: 340px; height: 604px; background-color: #ffffff !important; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; border: 1px solid #e2e8f0; box-sizing: border-box;';
         
         let html = '';
+        
+        // هدر (چسبیده به بالا)
         if (showHeader) {
-            // استفاده از بک گراند سالید (بدون گرادیانت) برای جلوگیری از باگ html2canvas
-            html += `<div style="flex-shrink: 0; height: 60px; background-color: #0F766E; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white;">
+            html += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 60px; background-color: #0F766E !important; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white !important; z-index: 10;">
                 <span style="font-size: 15px; font-weight: 900;">آژانس املاک آینده‌ساز</span>
                 <span style="font-size: 20px;">🏠</span>
             </div>`;
         }
 
-        html += `<div style="flex: 1; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden;">
+        // متن (با پدینگ دقیق تا با هدر و فوتر تداخل نکند)
+        const topPad = showHeader ? 60 : 0;
+        const botPad = (showName || showPhone) ? 110 : 0;
+        
+        html += `<div style="position: absolute; top: ${topPad}px; bottom: ${botPad}px; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background-color: #ffffff !important; overflow: hidden;">
             <div style="font-size: 13px; font-weight: 700; color: #334155 !important; line-height: 2.2; white-space: pre-wrap;">${text}</div>
         </div>`;
 
+        // فوتر (چسبیده به پایین)
         if (showName || showPhone) {
-            // استفاده از بک گراند سالید برای فوتر
-            html += `<div style="flex-shrink: 0; height: 110px; background-color: #0F766E; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff;">رحمان قاسمی</div>` : ''}
-                ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
+            html += `<div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background-color: #0F766E !important; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;">
+                ${showName ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff !important;">رحمان قاسمی</div>` : ''}
+                ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1 !important; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                ${showPhone ? `<div style="font-size: 17px; font-weight: 900; color: #ffffff !important; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
             </div>`;
         }
 
@@ -2851,13 +2855,13 @@ document.addEventListener('DOMContentLoaded', function() {
         function processCanvas(callback) {
             setTimeout(() => { 
                 html2canvas(storyBox, { 
-                    scale: 2, // 👈 اسکیل شد 2 تا گوشی هنگ نکنه
+                    scale: 2, 
                     backgroundColor: '#ffffff', 
                     useCORS: true,
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth: 340, // 👈 ابعاد دقیق کادر
-                    windowHeight: 604 // 👈 ابعاد دقیق کادر
+                    windowWidth: 340,
+                    windowHeight: 604
                 }).then(canvas => { 
                     callback(canvas); 
                 }).catch(err => { 

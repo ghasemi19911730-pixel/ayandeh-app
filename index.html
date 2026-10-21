@@ -2754,6 +2754,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         addCheck('chk-header', 'نوار رنگی آژانس (بالا)', true, 'آژانس املاک');
         addCheck('chk-name', 'نام شما (در فوتر)', true, 'رحمان قاسمی');
+        addCheck('chk-agency', 'عنوان شغلی (زیر اسم)', true, 'مشاور املاک آینده‌ساز'); // 👈 تیک جدید
         addCheck('chk-phone', 'شماره تماس (در فوتر)', true, '۰۹۱۴۲۰۲۲۸۹۸');
         
         checkboxes += `<div style="background:#f8fafc; padding:8px; margin-top:10px; font-weight:bold; color:#0F766E; font-size:13px; border-radius:8px;">اطلاعات ملک:</div>`;
@@ -2778,9 +2779,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sel-continue').onclick = () => {
             const getChk = (id) => { const el = document.getElementById(id); return el ? el.checked : false; };
             
-            // 👈 اول مقادیر تیک‌ها رو ذخیره میکنیم
             const showHeader = getChk('chk-header');
             const showName = getChk('chk-name');
+            const showAgency = getChk('chk-agency'); // 👈 گرفتن وضعیت تیک جدید
             const showPhone = getChk('chk-phone');
 
             let text = '';
@@ -2797,14 +2798,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-rent') && data.rent) text += `💰 اجاره: ${data.rent}\n`;
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
-            ov.remove(); // 👈 حالا که مقادیر رو گرفتیم، پنجره رو می‌بندیم
+            ov.remove();
             
-            createFlexImage(text, showHeader, showName, showPhone);
+            // 👈 اضافه کردن showAgency به تابع ساخت عکس
+            createFlexImage(text, showHeader, showName, showAgency, showPhone);
         };
     }
 
-    // ۳. ساخت عکس (با چیدمان جدول - ۱۰۰٪ ضد باگ)
-    function createFlexImage(text, showHeader, showName, showPhone) {
+    // ۳. ساخت عکس 
+    function createFlexImage(text, showHeader, showName, showAgency, showPhone) { // 👈 پارامتر جدید
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
@@ -2825,7 +2827,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr>
                 <td style="height: 110px; background-color: #0F766E; color: #ffffff; text-align: center; vertical-align: middle;">
                     ${showName ? `<div style="font-size: 17px; font-weight: 900;">رحمان قاسمی</div>` : ''}
-                    ${showName ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
+                    ${showAgency ? `<div style="font-size: 12px; font-weight: 600; color: #ccfbf1; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''} <!-- 👈 شرط جدید -->
                     ${showPhone ? `<div style="font-size: 17px; font-weight: 900; margin-top: 4px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
                 </td>
             </tr>

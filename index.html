@@ -2685,15 +2685,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
     </script>
-    <!-- کتابخانه جدید ساخت عکس (جایگزین html2canvas) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-
-<script>
+    <script>
 (function() {
     // ۱. ساخت دکمه
     setInterval(() => {
         const modal = document.getElementById('modal-detail');
-        if (modal && modal.classList.contains('show') && !modal.querySelector('#god-story-btn')) {
+        if (modal && modal.classList.contains('show') && !modal.querySelector('#canvas-story-btn')) {
             let diyarBtn = null;
             modal.querySelectorAll('button').forEach(b => { 
                 if (b.textContent && b.textContent.includes('دیوار')) diyarBtn = b; 
@@ -2701,8 +2698,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (diyarBtn) {
                 const btn = document.createElement('button');
-                btn.id = 'god-story-btn';
-                btn.innerHTML = '✨ ساخت استوری (رنگی)';
+                btn.id = 'canvas-story-btn';
+                btn.innerHTML = '✨ ساخت استوری (نهایی)';
                 btn.style.cssText = 'width:100%; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#E1306C,#833AB4); color:#fff; border:none; border-radius:12px; font-family:inherit; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 10px rgba(225,48,108,0.3); font-size:15px; z-index: 99999;';
                 
                 btn.onclick = (e) => {
@@ -2734,7 +2731,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 
-    // ۲. منوی انتخاب
+    // ۲. منوی انتخاب (دقیقا همونی که خواستی)
     function openMenu(data) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px; direction:rtl; font-family:Vazirmatn, sans-serif;';
@@ -2783,99 +2780,143 @@ document.addEventListener('DOMContentLoaded', function() {
             if (getChk('chk-desc') && data.desc) text += `\n📝 توضیحات: ${data.desc}\n`;
             
             ov.remove();
-            createFinalStory(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
+            createCanvasImage(text, getChk('chk-header'), getChk('chk-name'), getChk('chk-phone'));
         };
     }
 
-    // ۳. ساخت و دانلود عکس با کتابخانه جدید
-    function createFinalStory(text, showHeader, showName, showPhone) {
+    // ۳. کشیدن عکس با موتور خود مرورگر (Canvas) - ضدگلوله
+    async function createCanvasImage(text, showHeader, showName, showPhone) {
+        await document.fonts.ready;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1920;
+        const ctx = canvas.getContext('2d');
+        
+        // پس‌زمینه سفید
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        let currentY = 0;
+        const headerH = showHeader ? 160 : 0;
+        const footerH = (showName || showPhone) ? 220 : 0;
+        
+        // ۱. هدر رنگی
+        if (showHeader) {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#0F766E');
+            gradient.addColorStop(1, '#10B981');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, headerH);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 50px Vazirmatn, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('آژانس املاک آینده‌ساز', canvas.width - 60, 100);
+            
+            ctx.textAlign = 'left';
+            ctx.font = '70px Arial';
+            ctx.fillText('🏠', 60, 110);
+            
+            currentY = headerH;
+        }
+        
+        // ۲. متن
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 42px Vazirmatn, sans-serif';
+        ctx.textAlign = 'right';
+        
+        const lines = text.split('\n');
+        const startY = currentY + 80;
+        const maxTextY = canvas.height - footerH - 60;
+        
+        let y = startY;
+        for (let i = 0; i < lines.length; i++) {
+            if (y > maxTextY) break; 
+            ctx.fillText(lines[i], canvas.width - 60, y);
+            y += 75; 
+        }
+        
+        // ۳. فوتر رنگی
+        if (showName || showPhone) {
+            const footerY = canvas.height - footerH;
+            const gradient = ctx.createLinearGradient(0, footerY, canvas.width, footerY);
+            gradient.addColorStop(0, '#0F766E');
+            gradient.addColorStop(1, '#10B981');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, footerY, canvas.width, footerH);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            
+            let textY = footerY + 80;
+            if (showName) {
+                ctx.font = 'bold 55px Vazirmatn, sans-serif';
+                ctx.fillText('رحمان قاسمی', canvas.width / 2, textY);
+                textY += 60;
+                ctx.font = 'normal 32px Vazirmatn, sans-serif';
+                ctx.fillText('مشاور املاک آینده‌ساز', canvas.width / 2, textY);
+                textY += 60;
+            }
+            if (showPhone) {
+                ctx.font = 'bold 55px Arial';
+                ctx.fillText('۰۹۱۴۲۰۲۲۸۹۸', canvas.width / 2, textY);
+            }
+        }
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        showPreview(dataUrl);
+    }
+
+    // ۴. نمایش پیش‌نمایش
+    function showPreview(dataUrl) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
         
-        const storyBox = document.createElement('div');
-        // چیدمان Flexbox استاندارد (کتابخانه جدید کاملاً ازش پشتیبانی میکنه)
-        storyBox.style.cssText = 'width: 360px; height: 640px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #e2e8f0;';
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        img.style.cssText = 'width: 100%; max-width: 340px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
         
-        let html = '';
-        if (showHeader) {
-            html += `<div style="height: 70px; background: linear-gradient(135deg, #0F766E, #10B981); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; color: white; flex-shrink: 0;">
-                <span style="font-size: 16px; font-weight: 900;">آژانس املاک آینده‌ساز</span>
-                <span style="font-size: 22px;">🏠</span>
-            </div>`;
-        }
-
-        html += `<div style="flex: 1; padding: 20px; box-sizing: border-box; background: #ffffff; overflow: hidden;">
-            <div style="font-size: 14px; font-weight: 700; color: #334155; line-height: 2.2; white-space: pre-wrap;">${text}</div>
-        </div>`;
-
-        if (showName || showPhone) {
-            html += `<div style="height: 110px; background: linear-gradient(135deg, #0F766E, #10B981); color: white; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0;">
-                ${showName ? `<div style="font-size: 18px; font-weight: 900;">رحمان قاسمی</div>` : ''}
-                ${showName ? `<div style="font-size: 12px; margin-top: 2px;">مشاور املاک آینده‌ساز</div>` : ''}
-                ${showPhone ? `<div style="font-size: 18px; font-weight: 900; margin-top: 6px; direction: ltr;">۰۹۱۴۲۰۲۲۸۹۸</div>` : ''}
-            </div>`;
-        }
-
-        storyBox.innerHTML = html;
-
         const btnDownload = document.createElement('button');
-        btnDownload.innerHTML = '⬇️ دانلود در گالری';
-        btnDownload.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:360px; cursor:pointer;';
+        btnDownload.innerHTML = '⬇️ ذخیره در گالری';
+        btnDownload.style.cssText = 'margin-top:20px; padding:15px 20px; background:#10b981; color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3);';
         
         const btnShare = document.createElement('button');
-        btnShare.innerHTML = '📤 اشتراک‌گذاری (واتساپ/اینستاگرام)';
-        btnShare.style.cssText = 'margin-top:10px; padding:15px 20px; background:linear-gradient(135deg, #E1306C, #833AB4); color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:360px; cursor:pointer;';
+        btnShare.innerHTML = '📤 ارسال به واتساپ / اینستاگرام';
+        btnShare.style.cssText = 'margin-top:10px; padding:15px 20px; background:linear-gradient(135deg, #E1306C, #833AB4); color:white; border:none; border-radius:12px; font-weight:bold; font-size:15px; width:100%; max-width:340px; cursor:pointer; box-shadow: 0 4px 10px rgba(225,48,108,0.3);';
 
         const btnClose = document.createElement('button');
         btnClose.innerHTML = '✕ بستن';
-        btnClose.style.cssText = 'margin-top:10px; padding:10px; background:transparent; color:#9ca3af; border:none; cursor:pointer;';
+        btnClose.style.cssText = 'margin-top:10px; padding:10px 20px; background:transparent; color:#9ca3af; border:none; cursor:pointer;';
         
-        overlay.appendChild(storyBox);
+        overlay.appendChild(img);
         overlay.appendChild(btnDownload);
         overlay.appendChild(btnShare);
         overlay.appendChild(btnClose);
         document.body.appendChild(overlay);
         
         btnClose.onclick = () => overlay.remove();
-
-        function generateImage(cb) {
-            // استفاده از کتابخانه جدید html-to-image
-            setTimeout(() => { 
-                htmlToImage.toPng(storyBox, { pixelRatio: 3 })
-                .then(canvas => cb(canvas))
-                .catch(err => {
-                    alert('خطا در ساخت عکس: ' + err.message);
-                });
-            }, 300);
-        }
-
+        
         btnDownload.onclick = () => {
-            btnDownload.innerHTML = '⏳ در حال ساخت...';
-            generateImage(canvas => {
-                const link = document.createElement('a');
-                link.download = 'Story.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                btnDownload.innerHTML = '⬇️ دانلود در گالری';
-            });
+            const link = document.createElement('a');
+            link.download = 'Story.png';
+            link.href = dataUrl;
+            link.click();
         };
-
+        
         btnShare.onclick = () => {
-            btnShare.innerHTML = '⏳ در حال آماده‌سازی...';
-            generateImage(canvas => {
-                canvas.toBlob(blob => {
-                    const file = new File([blob], 'Story.png', { type: 'image/png' });
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'فایل املاک' }).catch(() => { btnShare.innerHTML = '📤 اشتراک‌گذاری (واتساپ/اینستاگرام)'; });
-                    } else {
-                        alert('گوشی شما از اشتراک‌گذاری مستقیم پشتیبانی نمی‌کند. از دکمه دانلود استفاده کنید.');
-                        btnDownload.click();
-                    }
-                }, 'image/png');
+            fetch(dataUrl).then(res => res.blob()).then(blob => {
+                const file = new File([blob], 'Story.png', { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({ files: [file], title: 'فایل املاک' }).catch(()=>{});
+                } else {
+                    alert('گوشی شما از ارسال مستقیم پشتیبانی نمی‌کند. از دکمه دانلود استفاده کنید.');
+                    btnDownload.click();
+                }
             });
         };
     }
 })();
-</script>
+    </script>
   </body>
                                                       </html>
